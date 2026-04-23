@@ -4,21 +4,15 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>3dworkbench Assistant</title>
-  <meta name="description" content="3dworkbench — Dein KI-Assistent für FDM & Resin 3D-Druck"/>
+  <meta name="description" content="3dworkbench — Dein KI-Assistent für FDM 3D-Druck"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    :root{
-      --bg:#080808;--bg2:#0d0d0d;--bg3:#111;
-      --border:#1a1a1a;--border2:#222;--border3:#2a2a2a;
-      --text:#e0e0e0;--text2:#888;--text3:#333;
-      --white:#fff;--green:#4ade80;
-    }
+    :root{--bg:#080808;--bg2:#0d0d0d;--bg3:#111;--border:#1a1a1a;--border2:#222;--border3:#2a2a2a;--text:#e0e0e0;--text2:#888;--text3:#333;--white:#fff;--green:#4ade80;}
     html,body{height:100%;}
     body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:0;}
     #wrap{width:100%;max-width:720px;height:100dvh;max-height:860px;background:var(--bg2);border:1px solid #555;display:flex;flex-direction:column;overflow:hidden;position:relative;}
-    /* HEADER */
     #header{height:58px;padding:0 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;background:var(--bg);flex-shrink:0;}
     #logo{width:34px;height:34px;border:1px solid var(--border3);background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
     #logo svg{width:18px;height:18px;}
@@ -28,13 +22,11 @@
     #lang-toggle{display:flex;border:1px solid var(--border2);flex-shrink:0;}
     .lang-btn{font-size:11px;font-weight:500;padding:6px 14px;border:none;cursor:pointer;font-family:'IBM Plex Mono',monospace;background:transparent;color:#888;letter-spacing:0.08em;transition:all 0.12s;}
     .lang-btn.active{background:var(--white);color:#000;}
-    /* STATUS */
     #status-bar{height:34px;padding:0 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--bg);flex-shrink:0;}
     #sdot{width:6px;height:6px;background:var(--green);flex-shrink:0;}
     #stext{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#888;letter-spacing:0.08em;text-transform:uppercase;flex:1;}
     #donate-link{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#ccc;text-decoration:none;letter-spacing:0.06em;background:transparent;border:1px solid #666;padding:5px 14px;transition:all 0.12s;text-transform:uppercase;}
-    #donate-link:hover{opacity:0.85;}
-    /* MESSAGES */
+    #donate-link:hover{color:var(--white);border-color:#888;}
     #messages{flex:1;overflow-y:auto;padding:24px 22px;display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth;}
     #messages::-webkit-scrollbar{width:3px;}
     #messages::-webkit-scrollbar-thumb{background:var(--border2);}
@@ -42,66 +34,58 @@
     .row.user{align-self:flex-end;flex-direction:row-reverse;}
     .row.bot{align-self:flex-start;}
     .avatar{width:28px;height:28px;border:1px solid #444;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:700;flex-shrink:0;color:#aaa;background:#1a1a1a;}
-    .row.user .avatar{color:#aaa;}
     .bubble{padding:12px 16px;font-size:13px;line-height:1.7;border:1px solid var(--border);}
-    .row.bot .bubble{background:var(--bg3);color:var(--text);border-color:var(--border);}
+    .row.bot .bubble{background:var(--bg3);color:var(--text);}
     .row.user .bubble{background:var(--white);color:#000;border-color:var(--white);}
-    .bubble p{margin-bottom:6px;} .bubble p:last-child{margin-bottom:0;}
-    .bubble ul{margin:6px 0 6px 14px;} .bubble li{margin-bottom:3px;}
+    .bubble p{margin-bottom:6px;}.bubble p:last-child{margin-bottom:0;}
+    .bubble ul{margin:6px 0 6px 14px;}.bubble li{margin-bottom:3px;}
     .bubble strong{font-weight:600;color:var(--white);}
     .row.user .bubble strong{color:#000;}
     .bubble code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg);padding:1px 5px;color:#888;}
+    .chat-img{max-width:220px;max-height:160px;border:1px solid #444;margin-top:6px;display:block;}
     .typing-dots{display:flex;gap:5px;align-items:center;padding:12px 14px;}
     .typing-dots span{width:5px;height:5px;background:var(--border3);animation:blink 1.1s ease infinite;}
     .typing-dots span:nth-child(2){animation-delay:0.2s;}
     .typing-dots span:nth-child(3){animation-delay:0.4s;}
     @keyframes blink{0%,60%,100%{opacity:.3}30%{opacity:1}}
-    /* CHIPS */
-    #chips{padding:0 22px 14px;display:flex;flex-wrap:wrap;gap:7px;flex-shrink:0;}
-    .chip{font-size:11px;padding:5px 12px;border:1px solid #3a3a3a;background:#161616;color:#888;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;transition:all 0.12s;}
-    .chip:hover{border-color:var(--border3);color:var(--text2);}
-    /* UPLOAD */
-    #profile-btn{width:40px;height:40px;background:#111;border:1px solid #555;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;}
-    #profile-btn:hover{background:#1e1e1e;border-color:#888;}
-    #profile-btn svg{width:16px;height:16px;}
-    #upload-btn{width:40px;height:40px;background:#111;border:1px solid #555;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;}
-    #upload-btn:hover{background:#1e1e1e;border-color:#888;}
-    #upload-btn svg{width:16px;height:16px;}
-    #file-input{display:none;}
-    #img-preview{margin:0 22px 10px;position:relative;display:inline-block;}
-    #img-preview img{max-height:120px;max-width:200px;border:1px solid #444;display:block;}
-    #img-preview-remove{position:absolute;top:-8px;right:-8px;width:18px;height:18px;background:#fff;color:#000;border:none;cursor:pointer;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;}
-    .chat-img{max-width:220px;max-height:160px;border:1px solid #444;margin-top:6px;display:block;}
-    /* MODAL */
-    .toggle-group{display:flex;gap:1px;background:#1a1a1a;border:1px solid #2a2a2a;}
-    .toggle-opt{flex:1;padding:8px 4px;font-family:'IBM Plex Mono',monospace;font-size:10px;text-align:center;cursor:pointer;color:#555;letter-spacing:0.03em;border:none;background:transparent;transition:all 0.12s;}
-    .toggle-opt.active{background:#fff;color:#000;font-weight:700;}
-    #modal-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:10;align-items:center;justify-content:center;}
-    #modal-overlay.open{display:flex;}
-    #modal{background:#111;border:1px solid #444;padding:24px;width:90%;max-width:420px;}
-    #modal h2{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:#fff;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;}
-    .form-row{margin-bottom:14px;}
-    .form-row label{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#888;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:5px;}
-    .form-row input,.form-row select{width:100%;background:#0a0a0a;border:1px solid #333;padding:9px 12px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:#e0e0e0;outline:none;}
-    .form-row input:focus,.form-row select:focus{border-color:#666;}
-    .form-row select option{background:#111;}
-    #modal-actions{display:flex;gap:10px;margin-top:20px;}
-    #modal-generate{flex:1;background:#fff;border:none;padding:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
-    #modal-cancel{background:transparent;border:1px solid #333;padding:10px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#666;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
-    #modal-cancel:hover{border-color:#666;color:#aaa;}
-    /* CHIPS LABEL */
     #chips-wrap{flex-shrink:0;}
     #chips-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#333;letter-spacing:0.08em;text-transform:uppercase;padding:8px 22px 4px;}
-    /* INPUT */
+    #chips{padding:0 22px 12px;display:flex;flex-wrap:wrap;gap:7px;}
+    .chip{font-size:11px;padding:5px 12px;border:1px solid #3a3a3a;background:#161616;color:#888;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;transition:all 0.12s;}
+    .chip:hover{border-color:var(--border3);color:var(--text2);}
+    #img-preview{margin:0 22px 8px;display:none;position:relative;display:none;}
+    #img-preview img{max-height:100px;max-width:160px;border:1px solid #444;display:block;}
+    #img-remove{position:absolute;top:-8px;right:-8px;width:18px;height:18px;background:var(--white);color:#000;border:none;cursor:pointer;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
     #bar{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end;flex-shrink:0;background:var(--bg);}
+    .bar-btn{width:40px;height:40px;background:var(--bg3);border:1px solid #555;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;}
+    .bar-btn:hover{background:#1e1e1e;border-color:#888;}
+    .bar-btn svg{width:16px;height:16px;}
+    #file-input{display:none;}
     #inp{flex:1;background:var(--bg3);border:1px solid #555;padding:11px 16px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);resize:none;line-height:1.5;max-height:120px;overflow-y:auto;outline:none;transition:border-color 0.12s;}
     #inp:focus{border-color:var(--border3);}
     #inp::placeholder{color:#666;}
     #send-btn{width:40px;height:40px;background:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.15s,transform 0.1s;}
-    #send-btn:hover{opacity:0.8;} #send-btn:active{transform:scale(0.94);} #send-btn:disabled{opacity:0.15;cursor:default;}
+    #send-btn:hover{opacity:0.8;}#send-btn:active{transform:scale(0.94);}#send-btn:disabled{opacity:0.15;cursor:default;}
     #send-btn svg{width:16px;height:16px;}
-    /* FOOTER */
     #foot{text-align:center;font-size:8px;color:var(--text3);padding:5px 0 7px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.05em;text-transform:uppercase;flex-shrink:0;border-top:1px solid var(--border);background:var(--bg);}
+    .toggle-group{display:flex;gap:1px;background:#1a1a1a;border:1px solid #2a2a2a;}
+    .toggle-opt{flex:1;padding:8px 4px;font-family:'IBM Plex Mono',monospace;font-size:10px;text-align:center;cursor:pointer;color:#555;letter-spacing:0.03em;border:none;background:transparent;transition:all 0.12s;}
+    .toggle-opt.active{background:var(--white);color:#000;font-weight:700;}
+    #modal-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.88);z-index:10;align-items:center;justify-content:center;overflow-y:auto;}
+    #modal-overlay.open{display:flex;}
+    #modal{background:var(--bg3);border:1px solid #444;padding:24px;width:90%;max-width:420px;margin:auto;}
+    #modal h2{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--white);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #222;}
+    .form-row{margin-bottom:13px;}
+    .form-row label{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#666;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:5px;}
+    .form-row input,.form-row select{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;padding:9px 12px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);outline:none;}
+    .form-row select option{background:var(--bg3);}
+    .modal-divider{border:none;border-top:1px solid #1e1e1e;margin:16px 0;}
+    .modal-section-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;}
+    #modal-actions{display:flex;gap:10px;margin-top:20px;}
+    #modal-generate{flex:1;background:var(--white);border:none;padding:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
+    #modal-cancel{background:transparent;border:1px solid #2a2a2a;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#555;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
+    #modal-cancel:hover{border-color:#555;color:#aaa;}
+    #surface-disclaimer{display:none;background:#080808;border:1px solid #1e1e1e;border-left:2px solid #2a2a2a;padding:9px 12px;margin-top:8px;font-size:11px;color:#555;line-height:1.6;}
     @media(max-width:480px){#wrap{max-height:100dvh;border:none;}}
   </style>
 </head>
@@ -131,10 +115,41 @@
   </div>
 
   <div id="messages"></div>
+
   <div id="chips-wrap">
-  <div id="chips-label"></div>
-  <div id="chips"></div>
+    <div id="chips-label"></div>
+    <div id="chips"></div>
   </div>
+
+  <div id="img-preview">
+    <img id="preview-img" src="" alt="preview"/>
+    <button id="img-remove" onclick="removeImage()">x</button>
+  </div>
+
+  <div id="bar">
+    <button class="bar-btn" onclick="openModal()" title="Druckprofil generieren">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    </button>
+    <input type="file" id="file-input" accept="image/*" onchange="handleImage(event)"/>
+    <button class="bar-btn" onclick="document.getElementById('file-input').click()" title="Bild hochladen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+        <polyline points="21 15 16 10 5 21"/>
+      </svg>
+    </button>
+    <textarea id="inp" rows="1"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();doSend()}"
+      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"
+    ></textarea>
+    <button id="send-btn" onclick="doSend()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+  <div id="foot">Powered by 3dworkbench · KI-gestützt · Alle Angaben ohne Gewähr</div>
 
   <div id="modal-overlay">
     <div id="modal">
@@ -171,15 +186,15 @@
         <input type="text" id="f-object" placeholder="z.B. Mechanisches Teil, Dekor, Prototyp"/>
       </div>
       <div class="form-row">
-        <label id="lbl-quality">Qualitaetsprioritaet</label>
+        <label id="lbl-quality">Qualitätspriorität</label>
         <select id="f-quality">
-          <option value="draft" selected>Schnell (Draft)</option>
-          <option value="balanced">Ausgewogen</option>
-          <option value="quality">Hohe Qualitaet</option>
+          <option value="draft">Schnell (Draft)</option>
+          <option value="balanced" selected>Ausgewogen</option>
+          <option value="quality">Hohe Qualität</option>
         </select>
       </div>
-      <div style="border-top:1px solid #1e1e1e;margin:14px 0;"></div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;" id="lbl-support-section">Support-Einstellungen</div>
+      <hr class="modal-divider"/>
+      <div class="modal-section-label" id="lbl-support-section">Support-Einstellungen</div>
       <div class="form-row">
         <label id="lbl-support-type">Support-Typ</label>
         <div class="toggle-group">
@@ -191,10 +206,10 @@
       <div class="form-row" id="surface-row" style="margin-top:12px;">
         <label id="lbl-surface">Support trifft auf...</label>
         <div class="toggle-group">
-          <button class="toggle-opt active" id="surf-visible" onclick="setSurf('visible')">Sichtbare Flaeche</button>
-          <button class="toggle-opt" id="surf-hidden" onclick="setSurf('hidden')">Unsichtbare Flaeche</button>
+          <button class="toggle-opt active" id="surf-visible" onclick="setSurf('visible')">Sichtbare Fläche</button>
+          <button class="toggle-opt" id="surf-hidden" onclick="setSurf('hidden')">Unsichtbare Fläche</button>
         </div>
-        <div id="surface-disclaimer" style="display:none;background:#080808;border:1px solid #1e1e1e;border-left:2px solid #2a2a2a;padding:9px 12px;margin-top:8px;font-size:11px;color:#555;line-height:1.6;"></div>
+        <div id="surface-disclaimer"></div>
       </div>
       <div id="modal-actions">
         <button id="modal-cancel" onclick="closeModal()">Abbrechen</button>
@@ -202,35 +217,6 @@
       </div>
     </div>
   </div>
-
-  <div id="img-preview" style="display:none;">
-    <img id="preview-img" src="" alt="preview"/>
-    <button id="img-preview-remove" onclick="removeImage()">x</button>
-  </div>
-  <div id="bar">
-    <input type="file" id="file-input" accept="image/*" onchange="handleImage(event)"/>
-    <button id="profile-btn" onclick="openModal()" title="Druckprofil generieren">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-      </svg>
-    </button>
-    <button id="upload-btn" onclick="document.getElementById('file-input').click()" title="Bild hochladen">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-        <polyline points="21 15 16 10 5 21"/>
-      </svg>
-    </button>
-    <textarea id="inp" rows="1"
-      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();doSend()}"
-      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"
-    ></textarea>
-    <button id="send-btn" onclick="doSend()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 12h14M12 5l7 7-7 7"/>
-      </svg>
-    </button>
-  </div>
-  <div id="foot">Powered by 3dworkbench · AI-assisted · All information without guarantee</div>
 </div>
 
 <script>
@@ -239,105 +225,126 @@ const S={
     sub:'Assistant · FDM',
     status:'System online',
     placeholder:'Stell deine Frage…',
+    chipsLabel:'Schnellstart — oder stell deine eigene Frage:',
     welcome:'Willkommen bei 3dworkbench.\n\nHast du eine Frage rund ums 3D-Drucken? Egal ob Slicer-Settings, Materialwahl, Fehlersuche oder Druckoptimierung — ich helfe dir weiter.',
     chips:['Haftungsprobleme','Materialwahl','Supports','Stringing','Slicer','Schichtqualität'],
     chipQ:['Ich habe Haftungsprobleme beim Drucken — kannst du mir helfen?','Ich habe Fragen zur Materialwahl — kannst du mir helfen?','Ich habe Probleme mit meinen Supports — kannst du mir helfen?','Ich habe Stringing-Probleme — kannst du mir helfen?','Ich suche einen passenden Slicer — kannst du mir helfen?','Ich habe Fragen zur Schichtqualität — kannst du mir helfen?'],
     you:'USR',error:'Verbindungsfehler — bitte versuch es nochmal.',
     foot:'Powered by 3dworkbench · KI-gestützt · Alle Angaben ohne Gewähr',
-    system:`Du bist der offizielle KI-Assistent von 3dworkbench — einer 3D-Druck Community auf Instagram. Du hilfst bei FDM, Resin, Slicer, Materialien, Fehlersuche, Kalibrierung, Supports, Post-Processing. Antworte auf Deutsch, präzise, praxisnah. Max. 5 Punkte. Ton: technisch kompetent, klar, community-nah. Erwähne gelegentlich, dass der User der 3dworkbench Community auf Instagram folgen kann.`
+    system:'Du bist der offizielle KI-Assistent von 3dworkbench — einer 3D-Druck Community auf Instagram. Du hilfst bei FDM-Druck: Slicer, Materialien, Fehlersuche, Kalibrierung, Supports, Post-Processing. Antworte auf Deutsch, präzise, praxisnah. Max. 5 Punkte. Ton: technisch kompetent, klar, community-nah. Verwende KEINE Emojis. Wenn ein Bild eines Fehldrucks hochgeladen wird, analysiere es genau und gib konkrete Lösungsschritte. Erwähne gelegentlich, dass der User der 3dworkbench Community auf Instagram folgen kann.'
   },
   en:{
     sub:'Assistant · FDM',
-    status:'System online — Ready for your question',
+    status:'System online',
     placeholder:'Ask your question…',
+    chipsLabel:'Quick start — or ask your own question:',
     welcome:"Welcome to 3dworkbench.\n\nGot a question about 3D printing? Whether it's slicer settings, material choice, troubleshooting, or print optimization — I'm here to help.",
     chips:['Bed adhesion','Material choice','Supports','Stringing','Slicer tips','Layer quality'],
     chipQ:['I have bed adhesion issues — can you help?','I have questions about material choice — can you help?','I have issues with my supports — can you help?','I have stringing problems — can you help?','I am looking for a suitable slicer — can you help?','I have questions about layer quality — can you help?'],
     you:'USR',error:'Connection error — please try again.',
     foot:'Powered by 3dworkbench · AI-assisted · All information without guarantee',
-    system:`You are the official AI assistant of 3dworkbench — a 3D printing community on Instagram. Help with FDM, resin, slicers, materials, troubleshooting, calibration, supports, post-processing. Answer in English, concise and practical. Max 5 points. Tone: technically competent, clear, community-friendly. Occasionally mention that the user can follow 3dworkbench on Instagram.`
+    system:'You are the official AI assistant of 3dworkbench — a 3D printing community on Instagram. Help with FDM printing: slicers, materials, troubleshooting, calibration, supports, post-processing. Answer in English, concise and practical. Max 5 points. Tone: technically competent, clear, community-friendly. Do NOT use emojis. When an image of a failed print is uploaded, analyze it carefully and provide concrete solution steps. Occasionally mention that the user can follow 3dworkbench on Instagram.'
   }
 };
 
-let lang='de',history=[],busy=false,pendingImageB64=null,pendingImageType=null;
+let lang='de', history=[], busy=false, pendingImageB64=null, pendingImageType=null, supType='tree', surfType='visible';
 
-function openModal(){
-  const o=document.getElementById('modal-overlay');
-  o.classList.add('open');
-}
-function closeModal(){
-  document.getElementById('modal-overlay').classList.remove('open');
-}
-let supType='tree', surfType='visible';
-
-function setSup(v){
-  supType=v;
-  ['none','tree','normal'].forEach(function(t){
-    var el=document.getElementById('sup-'+t);
-    if(el) el.classList.toggle('active', t===v);
-  });
-  var row=document.getElementById('surface-row');
-  if(row) row.style.display=v==='none'?'none':'block';
-}
-
-function setSurf(v){
-  surfType=v;
-  ['visible','hidden'].forEach(function(t){
-    var el=document.getElementById('surf-'+t);
-    if(el) el.classList.toggle('active', t===v);
-  });
-  var disc=document.getElementById('surface-disclaimer');
-  if(!disc) return;
-  var isEN=lang==='en';
-  if(v==='hidden'){
-    disc.style.display='block';
-    disc.innerHTML=isEN
-      ?'<strong style="color:#555;font-weight:500;">Note:</strong> A larger Z-gap improves removal but leaves visible marks. Only select for surfaces hidden or non-functional in the finished object.'
-      :'<strong style="color:#555;font-weight:500;">Hinweis:</strong> Groesserer Z-Abstand verbessert die Abloesung, hinterlaesst aber sichtbare Spuren. Nur fuer Flaechen waehlen, die im fertigen Objekt nicht sichtbar oder nicht funktional sind.';
-  } else {
-    disc.style.display='none';
+function setLang(l){
+  lang=l;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.textContent===l.toUpperCase()));
+  document.getElementById('hsub').textContent=S[l].sub;
+  document.getElementById('stext').textContent=S[l].status;
+  document.getElementById('inp').placeholder=S[l].placeholder;
+  document.getElementById('foot').textContent=S[l].foot;
+  document.getElementById('chips-label').textContent=S[l].chipsLabel;
+  document.documentElement.lang=l;
+  const isEN=l==='en';
+  document.getElementById('modal-title').textContent=isEN?'Print Profile Generator':'Druckprofil Generator';
+  document.getElementById('lbl-printer').textContent=isEN?'Printer':'Drucker';
+  document.getElementById('lbl-material').textContent='Material';
+  document.getElementById('lbl-slicer').textContent='Slicer';
+  document.getElementById('lbl-object').textContent=isEN?'Object / Purpose':'Objekt / Verwendungszweck';
+  document.getElementById('lbl-quality').textContent=isEN?'Quality Priority':'Qualitätspriorität';
+  document.getElementById('lbl-support-section').textContent=isEN?'Support Settings':'Support-Einstellungen';
+  document.getElementById('lbl-support-type').textContent=isEN?'Support Type':'Support-Typ';
+  document.getElementById('lbl-surface').textContent=isEN?'Support contacts...':'Support trifft auf...';
+  document.getElementById('sup-none').textContent=isEN?'No Support':'Kein Support';
+  document.getElementById('sup-tree').textContent=isEN?'Tree / Organic':'Tree / Organisch';
+  document.getElementById('sup-normal').textContent=isEN?'Normal / Linear':'Normal / Linear';
+  document.getElementById('surf-visible').textContent=isEN?'Visible Surface':'Sichtbare Fläche';
+  document.getElementById('surf-hidden').textContent=isEN?'Hidden Surface':'Unsichtbare Fläche';
+  document.getElementById('modal-cancel').textContent=isEN?'Cancel':'Abbrechen';
+  document.getElementById('modal-generate').textContent=isEN?'Generate Profile':'Profil generieren';
+  document.getElementById('f-printer').placeholder=isEN?'e.g. Bambu X1C, Prusa MK4, Ender 3':'z.B. Bambu X1C, Prusa MK4, Ender 3';
+  document.getElementById('f-object').placeholder=isEN?'e.g. mechanical part, decoration, prototype':'z.B. Mechanisches Teil, Dekor, Prototyp';
+  const qOpts=document.getElementById('f-quality');
+  const qLabels=isEN?['Fast (Draft)','Balanced','High Quality']:['Schnell (Draft)','Ausgewogen','Hohe Qualität'];
+  for(let i=0;i<qOpts.options.length;i++) qOpts.options[i].text=qLabels[i];
+  if(history.length===0){
+    document.getElementById('messages').innerHTML='';
+    document.getElementById('chips-wrap').style.display='block';
+    addMsg('bot',S[l].welcome);
+    renderChips();
   }
 }
 
-async function generateProfile(){
-  const printer=document.getElementById('f-printer').value.trim()||'Unbekannter Drucker';
-  const material=document.getElementById('f-material').value;
-  const slicer=document.getElementById('f-slicer').value;
-  const object=document.getElementById('f-object').value.trim()||'Allgemeines Objekt';
-  const qVal=document.getElementById('f-quality').value;const quality=qVal==='draft'?(isEN?'Fast (Draft)':'Schnell (Draft)'):qVal==='balanced'?(isEN?'Balanced':'Ausgewogen'):(isEN?'High Quality':'Hohe Qualitaet');
-  const supLabel=supType==='none'?(isEN?'No supports':'Kein Support'):supType==='tree'?(isEN?'Tree/Organic':'Tree/Organisch'):(isEN?'Normal/Linear':'Normal/Linear');
-  const surfLabel=supType!=='none'?(surfType==='hidden'?(isEN?'non-visible/non-functional surface':'unsichtbare/nicht-funktionale Flaeche'):(isEN?'visible/functional surface':'sichtbare/funktionale Flaeche')):'';
-  closeModal();
-  document.getElementById('chips').innerHTML='';
-  const promptDE=`Erstelle ein detailliertes Druckprofil fuer: Drucker: ${printer} | Material: ${material} | Slicer: ${slicer} | Objekt: ${object} | Qualitaet: ${quality} | Support: ${supLabel}${supType!=='none'?' auf '+surfLabel:''}.
-Strukturiere die Antwort so:
-1. PROFIL-KOPF: Drucker / Material / Qualitaet als Titel
-2. KERNWERTE (als klare Liste mit genauen Zahlen): Drucktemp, Betttemp, Schichthoehe, Infill-%, Infill-Muster, Geschwindigkeit, Kuehlung, Retraktion, Perimeter, Top/Bottom-Schichten
-3. SUPPORTS (falls aktiviert): Support-Typ, Z-Abstand oben, Z-Abstand unten, Interface-Schichten, Interface-Dichte, Support-Dichte, Ueberhang-Winkel. Beachte: ${surfType==='hidden'?'groesserer Z-Abstand da Flaeche nicht sichtbar/funktional':'minimaler Z-Abstand fuer saubere Oberflaeche'}
-4. WARUM DIESES PROFIL: 2-3 Saetze Begruendung der wichtigsten Entscheidungen
-5. DISCLAIMER: "Dieses Profil ist ein Startpunkt. Kalibriere anhand deiner ersten Testdrucke."
-Verwende exakte ${slicer}-Bezeichnungen. Keine Emojis.`;
-  const promptEN=`Create a detailed print profile for: Printer: ${printer} | Material: ${material} | Slicer: ${slicer} | Object: ${object} | Quality: ${quality} | Support: ${supLabel}${supType!=='none'?' on '+surfLabel:''}.
-Structure the answer as:
-1. PROFILE HEADER: Printer / Material / Quality as title
-2. CORE VALUES (as clear list with exact numbers): print temp, bed temp, layer height, infill %, infill pattern, speed, cooling, retraction, perimeters, top/bottom layers
-3. SUPPORTS (if enabled): support type, Z-gap top, Z-gap bottom, interface layers, interface density, support density, overhang angle. Note: ${surfType==='hidden'?'larger Z-gap since surface is non-visible/non-functional':'minimal Z-gap for clean surface quality'}
-4. WHY THIS PROFILE: 2-3 sentences explaining key decisions
-5. DISCLAIMER: "This profile is a starting point. Calibrate based on your first test prints."
-Use exact ${slicer} terminology. No emojis.`;
-  const prompt=isEN?promptEN:promptDE;
-  await send(prompt,null,null);
+function renderChips(){
+  const box=document.getElementById('chips');
+  box.innerHTML='';
+  S[lang].chips.forEach((label,i)=>{
+    const btn=document.createElement('button');
+    btn.className='chip';
+    btn.textContent=label;
+    btn.onclick=()=>{
+      document.getElementById('chips-wrap').style.display='none';
+      send(S[lang].chipQ[i],null,null);
+    };
+    box.appendChild(btn);
+  });
 }
 
+function md(t){
+  return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`(.+?)`/g,'<code>$1</code>').replace(/\n- /g,'<br>• ').replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');
+}
+
+function addMsg(role,text){
+  const box=document.getElementById('messages');
+  const row=document.createElement('div');row.className=`row ${role}`;
+  const av=document.createElement('div');av.className='avatar';av.textContent=role==='bot'?'3DW':S[lang].you;
+  const bub=document.createElement('div');bub.className='bubble';bub.innerHTML=`<p>${md(text)}</p>`;
+  row.appendChild(av);row.appendChild(bub);box.appendChild(row);box.scrollTop=box.scrollHeight;
+}
+
+function addMsgWithImg(role,text,b64,mimeType){
+  const box=document.getElementById('messages');
+  const row=document.createElement('div');row.className=`row ${role}`;
+  const av=document.createElement('div');av.className='avatar';av.textContent=role==='bot'?'3DW':S[lang].you;
+  const bub=document.createElement('div');bub.className='bubble';
+  let inner=text?`<p>${md(text)}</p>`:'';
+  if(b64) inner+=`<img class="chat-img" src="data:${mimeType};base64,${b64}" alt="upload"/>`;
+  bub.innerHTML=inner;
+  row.appendChild(av);row.appendChild(bub);box.appendChild(row);box.scrollTop=box.scrollHeight;
+}
+
+function showTyping(){
+  const box=document.getElementById('messages');
+  const row=document.createElement('div');row.className='row bot';row.id='typing';
+  const av=document.createElement('div');av.className='avatar';av.textContent='3DW';
+  const bub=document.createElement('div');bub.className='bubble';
+  bub.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';
+  row.appendChild(av);row.appendChild(bub);box.appendChild(row);box.scrollTop=box.scrollHeight;
+}
+
+function removeTyping(){const t=document.getElementById('typing');if(t)t.remove();}
+
 function handleImage(e){
-  const file=e.target.files[0];
-  if(!file)return;
+  const file=e.target.files[0];if(!file)return;
   pendingImageType=file.type||'image/jpeg';
   const reader=new FileReader();
   reader.onload=function(ev){
     pendingImageB64=ev.target.result.split(',')[1];
     document.getElementById('preview-img').src=ev.target.result;
-    document.getElementById('img-preview').style.display='inline-block';
+    document.getElementById('img-preview').style.display='block';
   };
   reader.readAsDataURL(file);
   e.target.value='';
@@ -349,100 +356,74 @@ function removeImage(){
   document.getElementById('preview-img').src='';
 }
 
-function setLang(l){
-  lang=l;
-  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.textContent===l.toUpperCase()));
-  document.getElementById('inp').placeholder=S[l].placeholder;
-  document.getElementById('stext').textContent=S[l].status;
-  document.getElementById('hsub').textContent=S[l].sub;
-  document.getElementById('foot').textContent=S[l].foot;
-  document.documentElement.lang=l;
-  renderChips();
-  if(history.length===0){document.getElementById('messages').innerHTML='';addMsg('bot',S[l].welcome);const cw=document.getElementById('chips-wrap');if(cw)cw.style.display='block';chipsShown=true;renderChips();}
-  const isEN=l==='en';
-  document.getElementById('modal-title').textContent=isEN?'Print Profile Generator':'Druckprofil Generator';
-  document.getElementById('lbl-printer').textContent=isEN?'Printer':'Drucker';
-  document.getElementById('lbl-material').textContent='Material';
-  document.getElementById('lbl-object').textContent=isEN?'Object / Purpose':'Objekt / Verwendungszweck';
-  document.getElementById('lbl-quality').textContent=isEN?'Quality Priority':'Qualitätspriorität';
-  document.getElementById('modal-cancel').textContent=isEN?'Cancel':'Abbrechen';
-  document.getElementById('modal-generate').textContent=isEN?'Generate Profile':'Profil generieren';
-  document.getElementById('lbl-slicer').textContent='Slicer';
-  const qOpts=document.getElementById('f-quality');
-  if(qOpts){
-    const qLabels=isEN
-      ?['Fast (Draft)','Balanced','High Quality']
-      :['Schnell (Draft)','Ausgewogen','Hohe Qualitaet'];
-    for(let i=0;i<qOpts.options.length;i++) qOpts.options[i].text=qLabels[i];
-  }
-  document.getElementById('lbl-support-section').textContent=isEN?'Support Settings':'Support-Einstellungen';
-  const cl=document.getElementById('chips-label');if(cl)cl.textContent=isEN?'Quick start — or ask your own question:':'Schnellstart — oder stell deine eigene Frage:';
-  document.getElementById('lbl-support-type').textContent=isEN?'Support Type':'Support-Typ';
-  document.getElementById('lbl-surface').textContent=isEN?'Support contacts...':'Support trifft auf...';
-  document.getElementById('sup-none').textContent=isEN?'No Support':'Kein Support';
-  document.getElementById('sup-tree').textContent=isEN?'Tree / Organic':'Tree / Organisch';
-  document.getElementById('sup-normal').textContent=isEN?'Normal / Linear':'Normal / Linear';
-  document.getElementById('surf-visible').textContent=isEN?'Visible Surface':'Sichtbare Flaeche';
-  document.getElementById('surf-hidden').textContent=isEN?'Hidden Surface':'Unsichtbare Flaeche';
-  document.getElementById('f-printer').placeholder=isEN?'e.g. Bambu X1C, Prusa MK4, Ender 3':'z.B. Bambu X1C, Prusa MK4, Ender 3';
-  document.getElementById('f-object').placeholder=isEN?'e.g. mechanical part, decoration, prototype':'z.B. Mechanisches Teil, Dekor, Prototyp';
-  const mOpts=document.getElementById('f-material');
-  if(mOpts){
-    const mLabels={
-      PLA:'PLA', PETG:'PETG', ABS:'ABS', ASA:'ASA', TPU:'TPU',
-      'PA/Nylon':'PA / Nylon',
-      'PLA-CF':isEN?'PLA-CF (Carbon)':'PLA-CF (Carbon)',
-      'PETG-CF':isEN?'PETG-CF (Carbon)':'PETG-CF (Carbon)'
-    };
-    for(let i=0;i<mOpts.options.length;i++){
-      const v=mOpts.options[i].value;
-      if(mLabels[v]) mOpts.options[i].text=mLabels[v];
-    }
-  }
-  const slOpts=document.getElementById('f-slicer');
-  if(slOpts){
-    const slLabels=['Bambu Studio','PrusaSlicer','OrcaSlicer','Cura','Simplify3D'];
-    for(let i=0;i<slOpts.options.length;i++) slOpts.options[i].text=slLabels[i];
-  }
-  document.getElementById('lbl-support-section').textContent=isEN?'Support Settings':'Support-Einstellungen';
-  const cl=document.getElementById('chips-label');if(cl)cl.textContent=isEN?'Quick start — or ask your own question:':'Schnellstart — oder stell deine eigene Frage:';
-}
+function openModal(){document.getElementById('modal-overlay').classList.add('open');}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
 
-function renderChips(){
-  const box=document.getElementById('chips');box.innerHTML='';
-  S[lang].chips.forEach((label,i)=>{
-    const btn=document.createElement('button');btn.className='chip';btn.textContent=label;
-    btn.onclick=()=>{document.getElementById('chips-wrap').style.display='none';chipsShown=false;send(S[lang].chipQ[i]);};
-    box.appendChild(btn);
+function setSup(v){
+  supType=v;
+  ['none','tree','normal'].forEach(t=>{
+    const el=document.getElementById('sup-'+t);
+    if(el)el.classList.toggle('active',t===v);
   });
+  document.getElementById('surface-row').style.display=v==='none'?'none':'block';
 }
 
-function md(t){return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`(.+?)`/g,'<code>$1</code>').replace(/\n- /g,'<br>• ').replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');}
-
-function addMsg(role,text){
-  const box=document.getElementById('messages');
-  const row=document.createElement('div');row.className=`row ${role}`;
-  const av=document.createElement('div');av.className='avatar';av.textContent=role==='bot'?'3DW':S[lang].you;
-  const bub=document.createElement('div');bub.className='bubble';bub.innerHTML=`<p>${md(text)}</p>`;
-  row.appendChild(av);row.appendChild(bub);box.appendChild(row);box.scrollTop=box.scrollHeight;
+function setSurf(v){
+  surfType=v;
+  ['visible','hidden'].forEach(t=>{
+    const el=document.getElementById('surf-'+t);
+    if(el)el.classList.toggle('active',t===v);
+  });
+  const disc=document.getElementById('surface-disclaimer');
+  const isEN=lang==='en';
+  if(v==='hidden'){
+    disc.style.display='block';
+    disc.innerHTML=isEN
+      ?'<strong style="color:#555;font-weight:500;">Note:</strong> A larger Z-gap improves removal but leaves visible marks. Only select for surfaces hidden or non-functional in the finished object.'
+      :'<strong style="color:#555;font-weight:500;">Hinweis:</strong> Grösserer Z-Abstand verbessert die Ablösung, hinterlässt aber sichtbare Spuren. Nur für Flächen wählen, die im fertigen Objekt nicht sichtbar oder nicht funktional sind.';
+  } else {
+    disc.style.display='none';
+  }
 }
 
-function showTyping(){
-  const box=document.getElementById('messages');
-  const row=document.createElement('div');row.className='row bot';row.id='typing';
-  const av=document.createElement('div');av.className='avatar';av.textContent='3DW';
-  const bub=document.createElement('div');bub.className='bubble';bub.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';
-  row.appendChild(av);row.appendChild(bub);box.appendChild(row);box.scrollTop=box.scrollHeight;
+async function generateProfile(){
+  const isEN=lang==='en';
+  const printer=document.getElementById('f-printer').value.trim()||'Unbekannter Drucker';
+  const material=document.getElementById('f-material').value;
+  const slicer=document.getElementById('f-slicer').value;
+  const object=document.getElementById('f-object').value.trim()||(isEN?'General object':'Allgemeines Objekt');
+  const qVal=document.getElementById('f-quality').value;
+  const quality=qVal==='draft'?(isEN?'Fast (Draft)':'Schnell (Draft)'):qVal==='balanced'?(isEN?'Balanced':'Ausgewogen'):(isEN?'High Quality':'Hohe Qualität');
+  const supLabel=supType==='none'?(isEN?'No supports':'Kein Support'):supType==='tree'?(isEN?'Tree/Organic':'Tree/Organisch'):(isEN?'Normal/Linear':'Normal/Linear');
+  const surfLabel=supType!=='none'?(surfType==='hidden'?(isEN?'non-visible/non-functional surface':'unsichtbare/nicht-funktionale Fläche'):(isEN?'visible/functional surface':'sichtbare/funktionale Fläche')):'';
+  closeModal();
+  document.getElementById('chips-wrap').style.display='none';
+  const promptDE=`Erstelle ein detailliertes Druckprofil für: Drucker: ${printer} | Material: ${material} | Slicer: ${slicer} | Objekt: ${object} | Qualität: ${quality} | Support: ${supLabel}${supType!=='none'?' auf '+surfLabel:''}.
+Strukturiere die Antwort so:
+1. PROFIL-KOPF: Drucker / Material / Qualität als Titel
+2. KERNWERTE (als klare Liste mit genauen Zahlen): Drucktemp, Betttemp, Schichthöhe, Infill-%, Infill-Muster, Geschwindigkeit, Kühlung, Retraktion, Perimeter, Top/Bottom-Schichten
+3. SUPPORTS (falls aktiviert): Support-Typ, Z-Abstand oben, Z-Abstand unten, Interface-Schichten, Support-Dichte, Überhang-Winkel. Beachte: ${surfType==='hidden'?'grösserer Z-Abstand da Fläche nicht sichtbar/funktional':'minimaler Z-Abstand für saubere Oberfläche'}
+4. WARUM DIESES PROFIL: 2-3 Sätze Begründung der wichtigsten Entscheidungen
+5. DISCLAIMER: "Dieses Profil ist ein Startpunkt. Kalibriere anhand deiner ersten Testdrucke."
+Verwende exakte ${slicer}-Bezeichnungen. Keine Emojis.`;
+  const promptEN=`Create a detailed print profile for: Printer: ${printer} | Material: ${material} | Slicer: ${slicer} | Object: ${object} | Quality: ${quality} | Support: ${supLabel}${supType!=='none'?' on '+surfLabel:''}.
+Structure the answer as:
+1. PROFILE HEADER: Printer / Material / Quality as title
+2. CORE VALUES (as clear list with exact numbers): print temp, bed temp, layer height, infill %, infill pattern, speed, cooling, retraction, perimeters, top/bottom layers
+3. SUPPORTS (if enabled): support type, Z-gap top, Z-gap bottom, interface layers, support density, overhang angle. Note: ${surfType==='hidden'?'larger Z-gap since surface is non-visible/non-functional':'minimal Z-gap for clean surface quality'}
+4. WHY THIS PROFILE: 2-3 sentences explaining key decisions
+5. DISCLAIMER: "This profile is a starting point. Calibrate based on your first test prints."
+Use exact ${slicer} terminology. No emojis.`;
+  await send(isEN?promptEN:promptDE,null,null);
 }
-
-function removeTyping(){const t=document.getElementById('typing');if(t)t.remove();}
 
 function doSend(){
-  const inp=document.getElementById('inp');const text=inp.value.trim();
+  const inp=document.getElementById('inp');
+  const text=inp.value.trim();
   if((!text&&!pendingImageB64)||busy)return;
   inp.value='';inp.style.height='auto';
-  document.getElementById('chips').innerHTML='';
-  const img=pendingImageB64;const imgType=pendingImageType;
+  document.getElementById('chips-wrap').style.display='none';
+  const img=pendingImageB64, imgType=pendingImageType;
   removeImage();
   send(text,img,imgType);
 }
@@ -453,35 +434,32 @@ async function send(text,imgB64,imgType){
     const userContent=[];
     if(text)userContent.push({type:'text',text});
     userContent.push({type:'image',source:{type:'base64',media_type:imgType,data:imgB64}});
-    addMsgWithImg('user',text,document.getElementById('preview-img').src||null,imgB64,imgType);
+    addMsgWithImg('user',text,imgB64,imgType);
     history.push({role:'user',content:userContent});
   } else {
     addMsg('user',text);
     history.push({role:'user',content:text});
   }
-  busy=true;document.getElementById('send-btn').disabled=true;showTyping();
+  busy=true;
+  document.getElementById('send-btn').disabled=true;
+  showTyping();
   try{
-    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history,lang})});
+    const res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:history,lang})
+    });
     const data=await res.json();
     const reply=data.reply||(data.error?data.error:'Error.');
-    removeTyping();addMsg('bot',reply);history.push({role:'assistant',content:reply});
-  }catch{removeTyping();addMsg('bot',S[lang].error);}
-  busy=false;document.getElementById('send-btn').disabled=false;
+    removeTyping();addMsg('bot',reply);
+    history.push({role:'assistant',content:reply});
+  }catch{
+    removeTyping();addMsg('bot',S[lang].error);
+  }
+  busy=false;
+  document.getElementById('send-btn').disabled=false;
 }
 
-function addMsgWithImg(role,text,previewSrc,b64,mimeType){
-  const box=document.getElementById('messages');
-  const row=document.createElement('div');row.className=`row ${role}`;
-  const av=document.createElement('div');av.className='avatar';av.textContent=role==='bot'?'3DW':S[lang].you;
-  const bub=document.createElement('div');bub.className='bubble';
-  let inner='';
-  if(text)inner+=`<p>${md(text)}</p>`;
-  if(b64)inner+=`<img class="chat-img" src="data:${mimeType};base64,${b64}" alt="upload"/>`;
-  bub.innerHTML=inner;
-  row.appendChild(av);row.appendChild(bub);box.appendChild(row);box.scrollTop=box.scrollHeight;
-}
-
-document.getElementById('chips-label').textContent='Schnellstart — oder stell deine eigene Frage:';
 setLang('de');
 </script>
 </body>
