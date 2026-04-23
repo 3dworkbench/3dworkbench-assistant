@@ -358,7 +358,7 @@ function setLang(l){
   document.getElementById('foot').textContent=S[l].foot;
   document.documentElement.lang=l;
   renderChips();
-  if(history.length===0){document.getElementById('messages').innerHTML='';addMsg('bot',S[l].welcome);renderChips();}
+  if(history.length===0){document.getElementById('messages').innerHTML='';addMsg('bot',S[l].welcome);const cw=document.getElementById('chips-wrap');if(cw)cw.style.display='block';chipsShown=true;renderChips();}
   const isEN=l==='en';
   document.getElementById('modal-title').textContent=isEN?'Print Profile Generator':'Druckprofil Generator';
   document.getElementById('lbl-printer').textContent=isEN?'Printer':'Drucker';
@@ -412,7 +412,7 @@ function renderChips(){
   const box=document.getElementById('chips');box.innerHTML='';
   S[lang].chips.forEach((label,i)=>{
     const btn=document.createElement('button');btn.className='chip';btn.textContent=label;
-    btn.onclick=()=>{box.innerHTML='';send(S[lang].chipQ[i]);};
+    btn.onclick=()=>{document.getElementById('chips-wrap').style.display='none';chipsShown=false;send(S[lang].chipQ[i]);};
     box.appendChild(btn);
   });
 }
