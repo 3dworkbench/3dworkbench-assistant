@@ -167,9 +167,9 @@
       <div class="form-row">
         <label id="lbl-quality">Qualitaetsprioritaet</label>
         <select id="f-quality">
-          <option value="Schnell (Draft)">Schnell (Draft)</option>
-          <option value="Ausgewogen" selected>Ausgewogen</option>
-          <option value="Hohe Qualitaet">Hohe Qualitaet</option>
+          <option value="draft" selected>Schnell (Draft)</option>
+          <option value="balanced">Ausgewogen</option>
+          <option value="quality">Hohe Qualitaet</option>
         </select>
       </div>
       <div style="border-top:1px solid #1e1e1e;margin:14px 0;"></div>
@@ -298,7 +298,7 @@ async function generateProfile(){
   const material=document.getElementById('f-material').value;
   const slicer=document.getElementById('f-slicer').value;
   const object=document.getElementById('f-object').value.trim()||'Allgemeines Objekt';
-  const quality=document.getElementById('f-quality').value;
+  const qVal=document.getElementById('f-quality').value;const quality=qVal==='draft'?(isEN?'Fast (Draft)':'Schnell (Draft)'):qVal==='balanced'?(isEN?'Balanced':'Ausgewogen'):(isEN?'High Quality':'Hohe Qualitaet');
   const supLabel=supType==='none'?(isEN?'No supports':'Kein Support'):supType==='tree'?(isEN?'Tree/Organic':'Tree/Organisch'):(isEN?'Normal/Linear':'Normal/Linear');
   const surfLabel=supType!=='none'?(surfType==='hidden'?(isEN?'non-visible/non-functional surface':'unsichtbare/nicht-funktionale Flaeche'):(isEN?'visible/functional surface':'sichtbare/funktionale Flaeche')):'';
   closeModal();
@@ -362,6 +362,13 @@ function setLang(l){
   document.getElementById('modal-cancel').textContent=isEN?'Cancel':'Abbrechen';
   document.getElementById('modal-generate').textContent=isEN?'Generate Profile':'Profil generieren';
   document.getElementById('lbl-slicer').textContent='Slicer';
+  const qOpts=document.getElementById('f-quality');
+  if(qOpts){
+    const qLabels=isEN
+      ?['Fast (Draft)','Balanced','High Quality']
+      :['Schnell (Draft)','Ausgewogen','Hohe Qualitaet'];
+    for(let i=0;i<qOpts.options.length;i++) qOpts.options[i].text=qLabels[i];
+  }
   document.getElementById('lbl-support-section').textContent=isEN?'Support Settings':'Support-Einstellungen';
   document.getElementById('lbl-support-type').textContent=isEN?'Support Type':'Support-Typ';
   document.getElementById('lbl-surface').textContent=isEN?'Support contacts...':'Support trifft auf...';
