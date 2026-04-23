@@ -455,7 +455,7 @@ async function send(text,imgB64,imgType){
   try{
     const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history,lang})});
     const data=await res.json();
-    const reply=data.reply||'Error.';
+    const reply=data.reply||(data.error?data.error:'Error.');
     removeTyping();addMsg('bot',reply);history.push({role:'assistant',content:reply});
   }catch{removeTyping();addMsg('bot',S[lang].error);}
   busy=false;document.getElementById('send-btn').disabled=false;
