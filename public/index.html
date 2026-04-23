@@ -17,7 +17,7 @@
     }
     html,body{height:100%;}
     body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:0;}
-    #wrap{width:100%;max-width:720px;height:100dvh;max-height:860px;background:var(--bg2);border:1px solid #555;display:flex;flex-direction:column;overflow:hidden;}
+    #wrap{width:100%;max-width:720px;height:100dvh;max-height:860px;background:var(--bg2);border:1px solid #555;display:flex;flex-direction:column;overflow:hidden;position:relative;}
     /* HEADER */
     #header{height:58px;padding:0 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;background:var(--bg);flex-shrink:0;}
     #logo{width:34px;height:34px;border:1px solid var(--border3);background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -61,6 +61,9 @@
     .chip{font-size:11px;padding:5px 12px;border:1px solid #3a3a3a;background:#161616;color:#888;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;transition:all 0.12s;}
     .chip:hover{border-color:var(--border3);color:var(--text2);}
     /* UPLOAD */
+    #profile-btn{width:40px;height:40px;background:#111;border:1px solid #555;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;}
+    #profile-btn:hover{background:#1e1e1e;border-color:#888;}
+    #profile-btn svg{width:16px;height:16px;}
     #upload-btn{width:40px;height:40px;background:#111;border:1px solid #555;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;}
     #upload-btn:hover{background:#1e1e1e;border-color:#888;}
     #upload-btn svg{width:16px;height:16px;}
@@ -69,6 +72,23 @@
     #img-preview img{max-height:120px;max-width:200px;border:1px solid #444;display:block;}
     #img-preview-remove{position:absolute;top:-8px;right:-8px;width:18px;height:18px;background:#fff;color:#000;border:none;cursor:pointer;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;}
     .chat-img{max-width:220px;max-height:160px;border:1px solid #444;margin-top:6px;display:block;}
+    /* MODAL */
+    .toggle-group{display:flex;gap:1px;background:#1a1a1a;border:1px solid #2a2a2a;}
+    .toggle-opt{flex:1;padding:8px 4px;font-family:'IBM Plex Mono',monospace;font-size:10px;text-align:center;cursor:pointer;color:#555;letter-spacing:0.03em;border:none;background:transparent;transition:all 0.12s;}
+    .toggle-opt.active{background:#fff;color:#000;font-weight:700;}
+    #modal-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:10;align-items:center;justify-content:center;}
+    #modal-overlay.open{display:flex;}
+    #modal{background:#111;border:1px solid #444;padding:24px;width:90%;max-width:420px;}
+    #modal h2{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:#fff;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;}
+    .form-row{margin-bottom:14px;}
+    .form-row label{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#888;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:5px;}
+    .form-row input,.form-row select{width:100%;background:#0a0a0a;border:1px solid #333;padding:9px 12px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:#e0e0e0;outline:none;}
+    .form-row input:focus,.form-row select:focus{border-color:#666;}
+    .form-row select option{background:#111;}
+    #modal-actions{display:flex;gap:10px;margin-top:20px;}
+    #modal-generate{flex:1;background:#fff;border:none;padding:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
+    #modal-cancel{background:transparent;border:1px solid #333;padding:10px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#666;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
+    #modal-cancel:hover{border-color:#666;color:#aaa;}
     /* INPUT */
     #bar{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end;flex-shrink:0;background:var(--bg);}
     #inp{flex:1;background:var(--bg3);border:1px solid #555;padding:11px 16px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);resize:none;line-height:1.5;max-height:120px;overflow-y:auto;outline:none;transition:border-color 0.12s;}
@@ -110,12 +130,84 @@
   <div id="messages"></div>
   <div id="chips"></div>
 
+  <div id="modal-overlay">
+    <div id="modal">
+      <h2 id="modal-title">Druckprofil Generator</h2>
+      <div class="form-row">
+        <label id="lbl-printer">Drucker</label>
+        <input type="text" id="f-printer" placeholder="z.B. Bambu X1C, Prusa MK4, Ender 3"/>
+      </div>
+      <div class="form-row">
+        <label id="lbl-material">Material</label>
+        <select id="f-material">
+          <option value="PLA">PLA</option>
+          <option value="PETG">PETG</option>
+          <option value="ABS">ABS</option>
+          <option value="ASA">ASA</option>
+          <option value="TPU">TPU</option>
+          <option value="PA/Nylon">PA / Nylon</option>
+          <option value="PLA-CF">PLA-CF (Carbon)</option>
+          <option value="PETG-CF">PETG-CF (Carbon)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label id="lbl-slicer">Slicer</label>
+        <select id="f-slicer">
+          <option value="Bambu Studio">Bambu Studio</option>
+          <option value="PrusaSlicer">PrusaSlicer</option>
+          <option value="OrcaSlicer">OrcaSlicer</option>
+          <option value="Cura">Cura</option>
+          <option value="Simplify3D">Simplify3D</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label id="lbl-object">Objekt / Verwendungszweck</label>
+        <input type="text" id="f-object" placeholder="z.B. Mechanisches Teil, Dekor, Prototyp"/>
+      </div>
+      <div class="form-row">
+        <label id="lbl-quality">Qualitaetsprioritaet</label>
+        <select id="f-quality">
+          <option value="Schnell (Draft)">Schnell (Draft)</option>
+          <option value="Ausgewogen" selected>Ausgewogen</option>
+          <option value="Hohe Qualitaet">Hohe Qualitaet</option>
+        </select>
+      </div>
+      <div style="border-top:1px solid #1e1e1e;margin:14px 0;"></div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;" id="lbl-support-section">Support-Einstellungen</div>
+      <div class="form-row">
+        <label id="lbl-support-type">Support-Typ</label>
+        <div class="toggle-group">
+          <button class="toggle-opt" id="sup-none" onclick="setSup('none')">Kein Support</button>
+          <button class="toggle-opt active" id="sup-tree" onclick="setSup('tree')">Tree / Organisch</button>
+          <button class="toggle-opt" id="sup-normal" onclick="setSup('normal')">Normal / Linear</button>
+        </div>
+      </div>
+      <div class="form-row" id="surface-row" style="margin-top:12px;">
+        <label id="lbl-surface">Support trifft auf...</label>
+        <div class="toggle-group">
+          <button class="toggle-opt active" id="surf-visible" onclick="setSurf('visible')">Sichtbare Flaeche</button>
+          <button class="toggle-opt" id="surf-hidden" onclick="setSurf('hidden')">Unsichtbare Flaeche</button>
+        </div>
+        <div id="surface-disclaimer" style="display:none;background:#080808;border:1px solid #1e1e1e;border-left:2px solid #2a2a2a;padding:9px 12px;margin-top:8px;font-size:11px;color:#555;line-height:1.6;"></div>
+      </div>
+      <div id="modal-actions">
+        <button id="modal-cancel" onclick="closeModal()">Abbrechen</button>
+        <button id="modal-generate" onclick="generateProfile()">Profil generieren</button>
+      </div>
+    </div>
+  </div>
+
   <div id="img-preview" style="display:none;">
     <img id="preview-img" src="" alt="preview"/>
     <button id="img-preview-remove" onclick="removeImage()">x</button>
   </div>
   <div id="bar">
     <input type="file" id="file-input" accept="image/*" onchange="handleImage(event)"/>
+    <button id="profile-btn" onclick="openModal()" title="Druckprofil generieren">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    </button>
     <button id="upload-btn" onclick="document.getElementById('file-input').click()" title="Bild hochladen">
       <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
@@ -163,6 +255,43 @@ const S={
 
 let lang='de',history=[],busy=false,pendingImageB64=null,pendingImageType=null;
 
+function openModal(){
+  const o=document.getElementById('modal-overlay');
+  o.classList.add('open');
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+async function generateProfile(){
+  const printer=document.getElementById('f-printer').value.trim()||'Unbekannter Drucker';
+  const material=document.getElementById('f-material').value;
+  const slicer=document.getElementById('f-slicer').value;
+  const object=document.getElementById('f-object').value.trim()||'Allgemeines Objekt';
+  const quality=document.getElementById('f-quality').value;
+  const supLabel=supType==='none'?(isEN?'No supports':'Kein Support'):supType==='tree'?(isEN?'Tree/Organic':'Tree/Organisch'):(isEN?'Normal/Linear':'Normal/Linear');
+  const surfLabel=supType!=='none'?(surfType==='hidden'?(isEN?'non-visible/non-functional surface':'unsichtbare/nicht-funktionale Flaeche'):(isEN?'visible/functional surface':'sichtbare/funktionale Flaeche')):'';
+  closeModal();
+  document.getElementById('chips').innerHTML='';
+  const promptDE=`Erstelle ein detailliertes Druckprofil fuer: Drucker: ${printer} | Material: ${material} | Slicer: ${slicer} | Objekt: ${object} | Qualitaet: ${quality} | Support: ${supLabel}${supType!=='none'?' auf '+surfLabel:''}.
+Strukturiere die Antwort so:
+1. PROFIL-KOPF: Drucker / Material / Qualitaet als Titel
+2. KERNWERTE (als klare Liste mit genauen Zahlen): Drucktemp, Betttemp, Schichthoehe, Infill-%, Infill-Muster, Geschwindigkeit, Kuehlung, Retraktion, Perimeter, Top/Bottom-Schichten
+3. SUPPORTS (falls aktiviert): Support-Typ, Z-Abstand oben, Z-Abstand unten, Interface-Schichten, Interface-Dichte, Support-Dichte, Ueberhang-Winkel. Beachte: ${surfType==='hidden'?'groesserer Z-Abstand da Flaeche nicht sichtbar/funktional':'minimaler Z-Abstand fuer saubere Oberflaeche'}
+4. WARUM DIESES PROFIL: 2-3 Saetze Begruendung der wichtigsten Entscheidungen
+5. DISCLAIMER: "Dieses Profil ist ein Startpunkt. Kalibriere anhand deiner ersten Testdrucke."
+Verwende exakte ${slicer}-Bezeichnungen. Keine Emojis.`;
+  const promptEN=`Create a detailed print profile for: Printer: ${printer} | Material: ${material} | Slicer: ${slicer} | Object: ${object} | Quality: ${quality} | Support: ${supLabel}${supType!=='none'?' on '+surfLabel:''}.
+Structure the answer as:
+1. PROFILE HEADER: Printer / Material / Quality as title
+2. CORE VALUES (as clear list with exact numbers): print temp, bed temp, layer height, infill %, infill pattern, speed, cooling, retraction, perimeters, top/bottom layers
+3. SUPPORTS (if enabled): support type, Z-gap top, Z-gap bottom, interface layers, interface density, support density, overhang angle. Note: ${surfType==='hidden'?'larger Z-gap since surface is non-visible/non-functional':'minimal Z-gap for clean surface quality'}
+4. WHY THIS PROFILE: 2-3 sentences explaining key decisions
+5. DISCLAIMER: "This profile is a starting point. Calibrate based on your first test prints."
+Use exact ${slicer} terminology. No emojis.`;
+  const prompt=isEN?promptEN:promptDE;
+  await send(prompt,null,null);
+}
+
 function handleImage(e){
   const file=e.target.files[0];
   if(!file)return;
@@ -193,6 +322,23 @@ function setLang(l){
   document.documentElement.lang=l;
   renderChips();
   if(history.length===0){document.getElementById('messages').innerHTML='';addMsg('bot',S[l].welcome);renderChips();}
+  const isEN=l==='en';
+  document.getElementById('modal-title').textContent=isEN?'Print Profile Generator':'Druckprofil Generator';
+  document.getElementById('lbl-printer').textContent=isEN?'Printer':'Drucker';
+  document.getElementById('lbl-material').textContent='Material';
+  document.getElementById('lbl-object').textContent=isEN?'Object / Purpose':'Objekt / Verwendungszweck';
+  document.getElementById('lbl-quality').textContent=isEN?'Quality Priority':'Qualitätspriorität';
+  document.getElementById('modal-cancel').textContent=isEN?'Cancel':'Abbrechen';
+  document.getElementById('modal-generate').textContent=isEN?'Generate Profile':'Profil generieren';
+  document.getElementById('lbl-slicer').textContent='Slicer';
+  document.getElementById('lbl-support-section').textContent=isEN?'Support Settings':'Support-Einstellungen';
+  document.getElementById('lbl-support-type').textContent=isEN?'Support Type':'Support-Typ';
+  document.getElementById('lbl-surface').textContent=isEN?'Support contacts...':'Support trifft auf...';
+  document.getElementById('sup-none').textContent=isEN?'No Support':'Kein Support';
+  document.getElementById('sup-tree').textContent=isEN?'Tree / Organic':'Tree / Organisch';
+  document.getElementById('sup-normal').textContent=isEN?'Normal / Linear':'Normal / Linear';
+  document.getElementById('surf-visible').textContent=isEN?'Visible Surface':'Sichtbare Flaeche';
+  document.getElementById('surf-hidden').textContent=isEN?'Hidden Surface':'Unsichtbare Flaeche';
 }
 
 function renderChips(){
