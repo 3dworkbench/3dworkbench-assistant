@@ -377,6 +377,27 @@ function setLang(l){
   document.getElementById('sup-normal').textContent=isEN?'Normal / Linear':'Normal / Linear';
   document.getElementById('surf-visible').textContent=isEN?'Visible Surface':'Sichtbare Flaeche';
   document.getElementById('surf-hidden').textContent=isEN?'Hidden Surface':'Unsichtbare Flaeche';
+  document.getElementById('f-printer').placeholder=isEN?'e.g. Bambu X1C, Prusa MK4, Ender 3':'z.B. Bambu X1C, Prusa MK4, Ender 3';
+  document.getElementById('f-object').placeholder=isEN?'e.g. mechanical part, decoration, prototype':'z.B. Mechanisches Teil, Dekor, Prototyp';
+  const mOpts=document.getElementById('f-material');
+  if(mOpts){
+    const mLabels={
+      PLA:'PLA', PETG:'PETG', ABS:'ABS', ASA:'ASA', TPU:'TPU',
+      'PA/Nylon':'PA / Nylon',
+      'PLA-CF':isEN?'PLA-CF (Carbon)':'PLA-CF (Carbon)',
+      'PETG-CF':isEN?'PETG-CF (Carbon)':'PETG-CF (Carbon)'
+    };
+    for(let i=0;i<mOpts.options.length;i++){
+      const v=mOpts.options[i].value;
+      if(mLabels[v]) mOpts.options[i].text=mLabels[v];
+    }
+  }
+  const slOpts=document.getElementById('f-slicer');
+  if(slOpts){
+    const slLabels=['Bambu Studio','PrusaSlicer','OrcaSlicer','Cura','Simplify3D'];
+    for(let i=0;i<slOpts.options.length;i++) slOpts.options[i].text=slLabels[i];
+  }
+  document.getElementById('lbl-support-section').textContent=isEN?'Support Settings':'Support-Einstellungen';
 }
 
 function renderChips(){
