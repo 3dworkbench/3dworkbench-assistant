@@ -89,6 +89,9 @@
     #modal-generate{flex:1;background:#fff;border:none;padding:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
     #modal-cancel{background:transparent;border:1px solid #333;padding:10px 16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#666;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
     #modal-cancel:hover{border-color:#666;color:#aaa;}
+    /* CHIPS LABEL */
+    #chips-wrap{flex-shrink:0;}
+    #chips-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#333;letter-spacing:0.08em;text-transform:uppercase;padding:8px 22px 4px;}
     /* INPUT */
     #bar{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end;flex-shrink:0;background:var(--bg);}
     #inp{flex:1;background:var(--bg3);border:1px solid #555;padding:11px 16px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);resize:none;line-height:1.5;max-height:120px;overflow-y:auto;outline:none;transition:border-color 0.12s;}
@@ -128,6 +131,8 @@
   </div>
 
   <div id="messages"></div>
+  <div id="chips-wrap">
+  <div id="chips-label"></div>
   <div id="chips"></div>
 
   <div id="modal-overlay">
@@ -200,6 +205,7 @@
   <div id="img-preview" style="display:none;">
     <img id="preview-img" src="" alt="preview"/>
     <button id="img-preview-remove" onclick="removeImage()">x</button>
+  </div>
   </div>
   <div id="bar">
     <input type="file" id="file-input" accept="image/*" onchange="handleImage(event)"/>
@@ -370,6 +376,7 @@ function setLang(l){
     for(let i=0;i<qOpts.options.length;i++) qOpts.options[i].text=qLabels[i];
   }
   document.getElementById('lbl-support-section').textContent=isEN?'Support Settings':'Support-Einstellungen';
+  const cl=document.getElementById('chips-label');if(cl)cl.textContent=isEN?'Quick start — or ask your own question:':'Schnellstart — oder stell deine eigene Frage:';
   document.getElementById('lbl-support-type').textContent=isEN?'Support Type':'Support-Typ';
   document.getElementById('lbl-surface').textContent=isEN?'Support contacts...':'Support trifft auf...';
   document.getElementById('sup-none').textContent=isEN?'No Support':'Kein Support';
@@ -398,6 +405,7 @@ function setLang(l){
     for(let i=0;i<slOpts.options.length;i++) slOpts.options[i].text=slLabels[i];
   }
   document.getElementById('lbl-support-section').textContent=isEN?'Support Settings':'Support-Einstellungen';
+  const cl=document.getElementById('chips-label');if(cl)cl.textContent=isEN?'Quick start — or ask your own question:':'Schnellstart — oder stell deine eigene Frage:';
 }
 
 function renderChips(){
@@ -473,6 +481,7 @@ function addMsgWithImg(role,text,previewSrc,b64,mimeType){
   row.appendChild(av);row.appendChild(bub);box.appendChild(row);box.scrollTop=box.scrollHeight;
 }
 
+document.getElementById('chips-label').textContent='Schnellstart — oder stell deine eigene Frage:';
 setLang('de');
 </script>
 </body>
