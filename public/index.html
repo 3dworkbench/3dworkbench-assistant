@@ -262,6 +262,37 @@ function openModal(){
 function closeModal(){
   document.getElementById('modal-overlay').classList.remove('open');
 }
+let supType='tree', surfType='visible';
+
+function setSup(v){
+  supType=v;
+  ['none','tree','normal'].forEach(function(t){
+    var el=document.getElementById('sup-'+t);
+    if(el) el.classList.toggle('active', t===v);
+  });
+  var row=document.getElementById('surface-row');
+  if(row) row.style.display=v==='none'?'none':'block';
+}
+
+function setSurf(v){
+  surfType=v;
+  ['visible','hidden'].forEach(function(t){
+    var el=document.getElementById('surf-'+t);
+    if(el) el.classList.toggle('active', t===v);
+  });
+  var disc=document.getElementById('surface-disclaimer');
+  if(!disc) return;
+  var isEN=lang==='en';
+  if(v==='hidden'){
+    disc.style.display='block';
+    disc.innerHTML=isEN
+      ?'<strong style="color:#555;font-weight:500;">Note:</strong> A larger Z-gap improves removal but leaves visible marks. Only select for surfaces hidden or non-functional in the finished object.'
+      :'<strong style="color:#555;font-weight:500;">Hinweis:</strong> Groesserer Z-Abstand verbessert die Abloesung, hinterlaesst aber sichtbare Spuren. Nur fuer Flaechen waehlen, die im fertigen Objekt nicht sichtbar oder nicht funktional sind.';
+  } else {
+    disc.style.display='none';
+  }
+}
+
 async function generateProfile(){
   const printer=document.getElementById('f-printer').value.trim()||'Unbekannter Drucker';
   const material=document.getElementById('f-material').value;
