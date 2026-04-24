@@ -1,71 +1,542 @@
-const SYSTEMS = {
-  de: `Du bist der offizielle KI-Assistent von 3dworkbench — einer 3D-Druck Community auf Instagram. Du hilfst bei FDM-Druck: Slicer, Materialien, Fehlersuche, Kalibrierung, Supports, Post-Processing. Antworte auf Deutsch, präzise, praxisnah. Max. 5 Punkte. Ton: technisch kompetent, klar, community-nah. Verwende KEINE Emojis. Wenn ein Bild eines Fehldrucks hochgeladen wird, analysiere es genau: erkenne den Fehlertyp und gib konkrete Lösungsschritte. Erwähne gelegentlich, dass der User der 3dworkbench Community auf Instagram folgen kann.`,
-  en: `You are the official AI assistant of 3dworkbench — a 3D printing community on Instagram. Help with FDM printing: slicers, materials, troubleshooting, calibration, supports, post-processing. Answer in English, concise and practical. Max 5 points. Tone: technically competent, clear, community-friendly. Do NOT use emojis. When an image of a failed print is uploaded, analyze it carefully and provide concrete solution steps. Occasionally mention that the user can follow 3dworkbench on Instagram.`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3dworkbench Assistant</title>
+  <meta name="description" content="3dworkbench — Your AI Assistant for FDM 3D Printing"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#080808;--bg2:#0d0d0d;--bg3:#111;--border:#1a1a1a;--border2:#222;--border3:#2a2a2a;--text:#e0e0e0;--text2:#888;--text3:#333;--white:#fff;--green:#4ade80;}
+    html,body{height:100%;}
+    body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:0;}
+    #wrap{width:100%;max-width:720px;height:100dvh;max-height:860px;background:var(--bg2);border:1px solid #555;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+    #header{height:58px;padding:0 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;background:var(--bg);flex-shrink:0;}
+    #logo{width:34px;height:34px;border:1px solid var(--border3);background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    #logo svg{width:18px;height:18px;}
+    #brand{flex:1;}
+    #brand-name{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:var(--white);letter-spacing:0.05em;}
+    #hsub{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#888;letter-spacing:0.08em;text-transform:uppercase;margin-top:2px;}
+    #lang-toggle{display:flex;border:1px solid var(--border2);flex-shrink:0;}
+    .lang-btn{font-size:11px;font-weight:500;padding:6px 14px;border:none;cursor:pointer;font-family:'IBM Plex Mono',monospace;background:transparent;color:#888;letter-spacing:0.08em;transition:all 0.12s;}
+    .lang-btn.active{background:var(--white);color:#000;}
+    #status-bar{height:34px;padding:0 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--bg);flex-shrink:0;}
+    #sdot{width:6px;height:6px;background:var(--green);flex-shrink:0;}
+    #stext{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#888;letter-spacing:0.08em;text-transform:uppercase;flex:1;}
+    #donate-link{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#ccc;text-decoration:none;letter-spacing:0.06em;background:transparent;border:1px solid #666;padding:5px 14px;transition:all 0.12s;text-transform:uppercase;}
+    #donate-link:hover{color:var(--white);border-color:#888;}
+    #messages{flex:1;overflow-y:auto;padding:24px 22px;display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth;}
+    #messages::-webkit-scrollbar{width:3px;}
+    #messages::-webkit-scrollbar-thumb{background:var(--border2);}
+    .row{display:flex;gap:12px;align-items:flex-start;max-width:88%;}
+    .row.user{align-self:flex-end;flex-direction:row-reverse;}
+    .row.bot{align-self:flex-start;}
+    .avatar{width:28px;height:28px;border:1px solid #444;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:700;flex-shrink:0;color:#aaa;background:#1a1a1a;}
+    .bubble{padding:12px 16px;font-size:13px;line-height:1.7;border:1px solid var(--border);}
+    .row.bot .bubble{background:var(--bg3);color:var(--text);}
+    .row.user .bubble{background:var(--white);color:#000;border-color:var(--white);}
+    .bubble p{margin-bottom:6px;}.bubble p:last-child{margin-bottom:0;}
+    .bubble ul{margin:6px 0 6px 14px;}.bubble li{margin-bottom:3px;}
+    .bubble strong{font-weight:600;color:var(--white);}
+    .row.user .bubble strong{color:#000;}
+    .bubble code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--bg);padding:1px 5px;color:#888;}
+    .chat-img{max-width:220px;max-height:160px;border:1px solid #444;margin-top:6px;display:block;}
+    .typing-dots{display:flex;gap:5px;align-items:center;padding:12px 14px;}
+    .typing-dots span{width:5px;height:5px;background:var(--border3);animation:blink 1.1s ease infinite;}
+    .typing-dots span:nth-child(2){animation-delay:0.2s;}
+    .typing-dots span:nth-child(3){animation-delay:0.4s;}
+    @keyframes blink{0%,60%,100%{opacity:.3}30%{opacity:1}}
+    #chips-wrap{flex-shrink:0;}
+    #chips-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#666;letter-spacing:0.08em;text-transform:uppercase;padding:8px 22px 4px;}
+    #chips{padding:0 22px 12px;display:flex;flex-wrap:wrap;gap:7px;}
+    .chip{font-size:11px;padding:5px 12px;border:1px solid #3a3a3a;background:#161616;color:#888;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;transition:all 0.12s;}
+    .chip:hover{border-color:var(--border3);color:var(--text2);}
+    #img-preview{margin:0 22px 8px;display:none;}
+    #img-preview img{max-height:100px;max-width:160px;border:1px solid #444;display:block;}
+    #img-remove{position:absolute;top:-8px;right:-8px;width:18px;height:18px;background:var(--white);color:#000;border:none;cursor:pointer;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+    #bar{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-shrink:0;background:var(--bg);}
+    .bar-btn{width:40px;height:40px;background:var(--bg3);border:1px solid #555;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;}
+    .bar-btn:hover{background:#1e1e1e;border-color:#888;}
+    .bar-btn svg{width:16px;height:16px;}
+    #file-input{display:none;}
+    #inp{flex:1;background:var(--bg3);border:1px solid #555;padding:0 16px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);resize:none;height:40px;outline:none;transition:border-color 0.12s;}
+    #inp:focus{border-color:var(--border3);}
+    #inp::placeholder{color:#666;}
+    #send-btn{width:40px;height:40px;background:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.15s;}
+    #send-btn:hover{opacity:0.8;}
+    #send-btn:disabled{opacity:0.15;cursor:default;}
+    #send-btn svg{width:16px;height:16px;}
+    #foot{text-align:center;font-size:8px;color:var(--text3);padding:5px 0 7px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.05em;text-transform:uppercase;flex-shrink:0;border-top:1px solid var(--border);background:var(--bg);}
+    .toggle-group{display:flex;gap:1px;background:#1a1a1a;border:1px solid #2a2a2a;}
+    .toggle-opt{flex:1;padding:8px 4px;font-family:'IBM Plex Mono',monospace;font-size:10px;text-align:center;cursor:pointer;color:#555;letter-spacing:0.03em;border:none;background:transparent;transition:all 0.12s;}
+    .toggle-opt.active{background:var(--white);color:#000;font-weight:700;}
+    #modal-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.88);z-index:10;align-items:center;justify-content:center;overflow-y:auto;}
+    #modal-overlay.open{display:flex;}
+    #modal{background:var(--bg3);border:1px solid #444;padding:24px;width:90%;max-width:420px;margin:auto;}
+    #modal h2{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--white);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #222;}
+    .form-row{margin-bottom:13px;}
+    .form-row label{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#666;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:5px;}
+    .form-row input,.form-row select{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;padding:9px 12px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);outline:none;}
+    .form-row select option{background:var(--bg3);}
+    .modal-divider{border:none;border-top:1px solid #1e1e1e;margin:16px 0;}
+    .modal-section-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#444;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;}
+    #modal-actions{display:flex;gap:10px;margin-top:20px;}
+    #modal-generate{flex:1;background:var(--white);border:none;padding:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
+    #modal-cancel{background:transparent;border:1px solid #2a2a2a;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#555;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
+    #modal-cancel:hover{border-color:#555;color:#aaa;}
+    #surface-disclaimer{display:none;background:#080808;border:1px solid #1e1e1e;border-left:2px solid #2a2a2a;padding:9px 12px;margin-top:8px;font-size:11px;color:#555;line-height:1.6;}
+    @media(max-width:480px){#wrap{max-height:100dvh;border:none;}}
+  </style>
+</head>
+<body>
+<div id="wrap">
+  <div id="header">
+    <div id="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 12 2 21 6"/><polyline points="3 6 3 18 12 22 21 18 21 6"/>
+        <line x1="12" y1="2" x2="12" y2="22"/><line x1="3" y1="12" x2="21" y2="12"/>
+      </svg>
+    </div>
+    <div id="brand">
+      <div id="brand-name">3dworkbench</div>
+      <div id="hsub">Assistant · FDM</div>
+    </div>
+    <div id="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('de')">DE</button>
+    </div>
+  </div>
+  <div id="status-bar">
+    <div id="sdot"></div>
+    <div id="stext">System online</div>
+    <a id="donate-link" href="https://paypal.me/AzraRibic" target="_blank" rel="noopener">Donate via PayPal</a>
+  </div>
+  <div id="messages"></div>
+  <div id="chips-wrap">
+    <div id="chips-label"></div>
+    <div id="chips"></div>
+  </div>
+  <div id="img-preview">
+    <img id="preview-img" src="" alt="preview"/>
+    <button id="img-remove" onclick="removeImage()">x</button>
+  </div>
+  <div id="bar">
+    <button class="bar-btn" onclick="openModal()" title="Print Profile Generator">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    </button>
+    <input type="file" id="file-input" accept="image/*" onchange="handleImage(event)"/>
+    <button class="bar-btn" onclick="document.getElementById('file-input').click()" title="Upload image">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+        <polyline points="21 15 16 10 5 21"/>
+      </svg>
+    </button>
+    <input id="inp" type="text" placeholder="Ask your question…"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();doSend()}"
+    />
+    <button class="bar-btn" onclick="exportPDF()" title="Save as PDF">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    </button>
+    <button id="send-btn" onclick="doSend()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+  <div id="foot">Powered by 3dworkbench · AI-assisted · All information without guarantee</div>
+
+  <div id="modal-overlay">
+    <div id="modal">
+      <h2 id="modal-title">Print Profile Generator</h2>
+      <div class="form-row">
+        <label id="lbl-printer">Printer</label>
+        <input type="text" id="f-printer" placeholder="e.g. Bambu X1C, Prusa MK4, Ender 3"/>
+      </div>
+      <div class="form-row">
+        <label id="lbl-material">Material</label>
+        <select id="f-material">
+          <option value="PLA">PLA</option>
+          <option value="PETG">PETG</option>
+          <option value="ABS">ABS</option>
+          <option value="ASA">ASA</option>
+          <option value="TPU">TPU</option>
+          <option value="PA/Nylon">PA / Nylon</option>
+          <option value="PLA-CF">PLA-CF (Carbon)</option>
+          <option value="PETG-CF">PETG-CF (Carbon)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label id="lbl-slicer">Slicer</label>
+        <select id="f-slicer">
+          <option value="Bambu Studio">Bambu Studio</option>
+          <option value="PrusaSlicer">PrusaSlicer</option>
+          <option value="OrcaSlicer">OrcaSlicer</option>
+          <option value="Cura">Cura</option>
+          <option value="Simplify3D">Simplify3D</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label id="lbl-object">Object / Purpose</label>
+        <input type="text" id="f-object" placeholder="e.g. mechanical part, decoration, prototype"/>
+      </div>
+      <div class="form-row">
+        <label id="lbl-quality">Quality Priority</label>
+        <select id="f-quality">
+          <option value="draft">Fast (Draft)</option>
+          <option value="balanced" selected>Balanced</option>
+          <option value="quality">High Quality</option>
+        </select>
+      </div>
+      <hr class="modal-divider"/>
+      <div class="modal-section-label" id="lbl-support-section">Support Settings</div>
+      <div class="form-row">
+        <label id="lbl-support-type">Support Type</label>
+        <div class="toggle-group">
+          <button class="toggle-opt" id="sup-none" onclick="setSup('none')">No Support</button>
+          <button class="toggle-opt active" id="sup-tree" onclick="setSup('tree')">Tree / Organic</button>
+          <button class="toggle-opt" id="sup-normal" onclick="setSup('normal')">Normal / Linear</button>
+        </div>
+      </div>
+      <div class="form-row" id="surface-row" style="margin-top:12px;">
+        <label id="lbl-surface">Support contacts...</label>
+        <div class="toggle-group">
+          <button class="toggle-opt active" id="surf-visible" onclick="setSurf('visible')">Visible Surface</button>
+          <button class="toggle-opt" id="surf-hidden" onclick="setSurf('hidden')">Hidden Surface</button>
+        </div>
+        <div id="surface-disclaimer"></div>
+      </div>
+      <div id="modal-actions">
+        <button id="modal-cancel" onclick="closeModal()">Cancel</button>
+        <button id="modal-generate" onclick="generateProfile()">Generate Profile</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var STRINGS = {
+  en: {
+    sub: 'Assistant \u00b7 FDM',
+    status: 'System online',
+    placeholder: 'Ask your question\u2026',
+    chipsLabel: 'Quick start \u2014 or ask your own question:',
+    welcome: 'Welcome to 3dworkbench.\n\nGot a question about 3D printing? Whether it\'s slicer settings, material choice, troubleshooting, or print optimization \u2014 I\'m here to help.',
+    chips: ['Bed adhesion','Material choice','Supports','Stringing','Slicer tips','Layer quality'],
+    chipQ: ['I have bed adhesion issues \u2014 can you help?','I have questions about material choice \u2014 can you help?','I have issues with my supports \u2014 can you help?','I have stringing problems \u2014 can you help?','I am looking for a suitable slicer \u2014 can you help?','I have questions about layer quality \u2014 can you help?'],
+    you: 'USR',
+    error: 'Connection error \u2014 please try again.',
+    foot: 'Powered by 3dworkbench \u00b7 AI-assisted \u00b7 All information without guarantee',
+    system: 'You are the official AI assistant of 3dworkbench \u2014 a 3D printing community on Instagram. Help with FDM printing: slicers, materials, troubleshooting, calibration, supports, post-processing. Answer in English, concise and practical. Max 5 points. Tone: technically competent, clear, community-friendly. Do NOT use emojis. When an image of a failed print is uploaded, analyze it carefully and provide concrete solution steps. Occasionally mention that the user can follow 3dworkbench on Instagram.'
+  },
+  de: {
+    sub: 'Assistant \u00b7 FDM',
+    status: 'System online',
+    placeholder: 'Stell deine Frage\u2026',
+    chipsLabel: 'Schnellstart \u2014 oder stell deine eigene Frage:',
+    welcome: 'Willkommen bei 3dworkbench.\n\nHast du eine Frage rund ums 3D-Drucken? Egal ob Slicer-Settings, Materialwahl, Fehlersuche oder Druckoptimierung \u2014 ich helfe dir weiter.',
+    chips: ['Haftungsprobleme','Materialwahl','Supports','Stringing','Slicer','Schichtqualit\u00e4t'],
+    chipQ: ['Ich habe Haftungsprobleme beim Drucken \u2014 kannst du mir helfen?','Ich habe Fragen zur Materialwahl \u2014 kannst du mir helfen?','Ich habe Probleme mit meinen Supports \u2014 kannst du mir helfen?','Ich habe Stringing-Probleme \u2014 kannst du mir helfen?','Ich suche einen passenden Slicer \u2014 kannst du mir helfen?','Ich habe Fragen zur Schichtqualit\u00e4t \u2014 kannst du mir helfen?'],
+    you: 'USR',
+    error: 'Verbindungsfehler \u2014 bitte versuch es nochmal.',
+    foot: 'Powered by 3dworkbench \u00b7 KI-gest\u00fctzt \u00b7 Alle Angaben ohne Gew\u00e4hr',
+    system: 'Du bist der offizielle KI-Assistent von 3dworkbench \u2014 einer 3D-Druck Community auf Instagram. Du hilfst bei FDM-Druck: Slicer, Materialien, Fehlersuche, Kalibrierung, Supports, Post-Processing. Antworte auf Deutsch, pr\u00e4zise, praxisnah. Max. 5 Punkte. Ton: technisch kompetent, klar, community-nah. Verwende KEINE Emojis. Wenn ein Bild eines Fehldrucks hochgeladen wird, analysiere es genau und gib konkrete L\u00f6sungsschritte. Erw\u00e4hne gelegentlich, dass der User der 3dworkbench Community auf Instagram folgen kann.'
+  }
 };
 
-// In-memory rate limiter: max 20 requests per IP per hour
-const rateLimits = new Map();
-const MAX_REQUESTS = 20;
-const WINDOW_MS = 60 * 60 * 1000; // 1 hour
+var lang = 'en';
+var chatHistory = [];
+var busy = false;
+var pendingImageB64 = null;
+var pendingImageType = null;
+var supType = 'tree';
+var surfType = 'visible';
 
-function checkRateLimit(ip) {
-  const now = Date.now();
-  const entry = rateLimits.get(ip);
-
-  if (!entry || now - entry.windowStart > WINDOW_MS) {
-    rateLimits.set(ip, { count: 1, windowStart: now });
-    return { allowed: true, remaining: MAX_REQUESTS - 1 };
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(function(b) {
+    b.classList.toggle('active', b.textContent === l.toUpperCase());
+  });
+  document.getElementById('hsub').textContent = STRINGS[l].sub;
+  document.getElementById('stext').textContent = STRINGS[l].status;
+  document.getElementById('inp').placeholder = STRINGS[l].placeholder;
+  document.getElementById('foot').textContent = STRINGS[l].foot;
+  document.getElementById('chips-label').textContent = STRINGS[l].chipsLabel;
+  document.documentElement.lang = l;
+  var isEN = l === 'en';
+  document.getElementById('modal-title').textContent = isEN ? 'Print Profile Generator' : 'Druckprofil Generator';
+  document.getElementById('lbl-printer').textContent = isEN ? 'Printer' : 'Drucker';
+  document.getElementById('lbl-material').textContent = 'Material';
+  document.getElementById('lbl-slicer').textContent = 'Slicer';
+  document.getElementById('lbl-object').textContent = isEN ? 'Object / Purpose' : 'Objekt / Verwendungszweck';
+  document.getElementById('lbl-quality').textContent = isEN ? 'Quality Priority' : 'Qualit\u00e4tspriorit\u00e4t';
+  document.getElementById('lbl-support-section').textContent = isEN ? 'Support Settings' : 'Support-Einstellungen';
+  document.getElementById('lbl-support-type').textContent = isEN ? 'Support Type' : 'Support-Typ';
+  document.getElementById('lbl-surface').textContent = isEN ? 'Support contacts...' : 'Support trifft auf...';
+  document.getElementById('sup-none').textContent = isEN ? 'No Support' : 'Kein Support';
+  document.getElementById('sup-tree').textContent = isEN ? 'Tree / Organic' : 'Tree / Organisch';
+  document.getElementById('sup-normal').textContent = isEN ? 'Normal / Linear' : 'Normal / Linear';
+  document.getElementById('surf-visible').textContent = isEN ? 'Visible Surface' : 'Sichtbare Fl\u00e4che';
+  document.getElementById('surf-hidden').textContent = isEN ? 'Hidden Surface' : 'Unsichtbare Fl\u00e4che';
+  document.getElementById('modal-cancel').textContent = isEN ? 'Cancel' : 'Abbrechen';
+  document.getElementById('modal-generate').textContent = isEN ? 'Generate Profile' : 'Profil generieren';
+  document.getElementById('f-printer').placeholder = isEN ? 'e.g. Bambu X1C, Prusa MK4, Ender 3' : 'z.B. Bambu X1C, Prusa MK4, Ender 3';
+  document.getElementById('f-object').placeholder = isEN ? 'e.g. mechanical part, decoration, prototype' : 'z.B. Mechanisches Teil, Dekor, Prototyp';
+  var qOpts = document.getElementById('f-quality');
+  var qLabels = isEN ? ['Fast (Draft)','Balanced','High Quality'] : ['Schnell (Draft)','Ausgewogen','Hohe Qualit\u00e4t'];
+  for (var i = 0; i < qOpts.options.length; i++) qOpts.options[i].text = qLabels[i];
+  if (chatHistory.length === 0) {
+    document.getElementById('messages').innerHTML = '';
+    document.getElementById('chips-wrap').style.display = 'block';
+    addMsg('bot', STRINGS[l].welcome);
+    renderChips();
   }
-
-  if (entry.count >= MAX_REQUESTS) {
-    const resetIn = Math.ceil((WINDOW_MS - (now - entry.windowStart)) / 60000);
-    return { allowed: false, resetIn };
-  }
-
-  entry.count++;
-  return { allowed: true, remaining: MAX_REQUESTS - entry.count };
 }
 
-module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+function renderChips() {
+  var box = document.getElementById('chips');
+  box.innerHTML = '';
+  STRINGS[lang].chips.forEach(function(label, i) {
+    var btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = label;
+    btn.onclick = function() {
+      document.getElementById('chips-wrap').style.display = 'none';
+      send(STRINGS[lang].chipQ[i], null, null);
+    };
+    box.appendChild(btn);
+  });
+}
 
-  // Get IP
-  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+function md(t) {
+  return t
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/\n- /g, '<br>\u2022 ')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+}
 
-  // Check rate limit
-  const limit = checkRateLimit(ip);
-  if (!limit.allowed) {
-    return res.status(429).json({
-      error: `Zu viele Anfragen. Bitte warte ${limit.resetIn} Minuten. / Too many requests. Please wait ${limit.resetIn} minutes.`
-    });
+function addMsg(role, text) {
+  var box = document.getElementById('messages');
+  var row = document.createElement('div');
+  row.className = 'row ' + role;
+  var av = document.createElement('div');
+  av.className = 'avatar';
+  av.textContent = role === 'bot' ? '3DW' : STRINGS[lang].you;
+  var bub = document.createElement('div');
+  bub.className = 'bubble';
+  bub.innerHTML = '<p>' + md(text) + '</p>';
+  row.appendChild(av);
+  row.appendChild(bub);
+  box.appendChild(row);
+  box.scrollTop = box.scrollHeight;
+}
+
+function addMsgWithImg(role, text, b64, mimeType) {
+  var box = document.getElementById('messages');
+  var row = document.createElement('div');
+  row.className = 'row ' + role;
+  var av = document.createElement('div');
+  av.className = 'avatar';
+  av.textContent = role === 'bot' ? '3DW' : STRINGS[lang].you;
+  var bub = document.createElement('div');
+  bub.className = 'bubble';
+  var inner = text ? '<p>' + md(text) + '</p>' : '';
+  if (b64) inner += '<img class="chat-img" src="data:' + mimeType + ';base64,' + b64 + '" alt="upload"/>';
+  bub.innerHTML = inner;
+  row.appendChild(av);
+  row.appendChild(bub);
+  box.appendChild(row);
+  box.scrollTop = box.scrollHeight;
+}
+
+function showTyping() {
+  var box = document.getElementById('messages');
+  var row = document.createElement('div');
+  row.className = 'row bot';
+  row.id = 'typing';
+  var av = document.createElement('div');
+  av.className = 'avatar';
+  av.textContent = '3DW';
+  var bub = document.createElement('div');
+  bub.className = 'bubble';
+  bub.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  row.appendChild(av);
+  row.appendChild(bub);
+  box.appendChild(row);
+  box.scrollTop = box.scrollHeight;
+}
+
+function removeTyping() {
+  var t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+function handleImage(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  pendingImageType = file.type || 'image/jpeg';
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    pendingImageB64 = ev.target.result.split(',')[1];
+    document.getElementById('preview-img').src = ev.target.result;
+    document.getElementById('img-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function removeImage() {
+  pendingImageB64 = null;
+  pendingImageType = null;
+  document.getElementById('img-preview').style.display = 'none';
+  document.getElementById('preview-img').src = '';
+}
+
+function openModal() { document.getElementById('modal-overlay').classList.add('open'); }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+function setSup(v) {
+  supType = v;
+  ['none','tree','normal'].forEach(function(t) {
+    var el = document.getElementById('sup-' + t);
+    if (el) el.classList.toggle('active', t === v);
+  });
+  document.getElementById('surface-row').style.display = v === 'none' ? 'none' : 'block';
+}
+
+function setSurf(v) {
+  surfType = v;
+  ['visible','hidden'].forEach(function(t) {
+    var el = document.getElementById('surf-' + t);
+    if (el) el.classList.toggle('active', t === v);
+  });
+  var disc = document.getElementById('surface-disclaimer');
+  var isEN = lang === 'en';
+  if (v === 'hidden') {
+    disc.style.display = 'block';
+    disc.innerHTML = isEN
+      ? '<strong style="color:#555;font-weight:500;">Note:</strong> A larger Z-gap improves removal but leaves visible marks. Only select for surfaces hidden or non-functional in the finished object.'
+      : '<strong style="color:#555;font-weight:500;">Hinweis:</strong> Gr\u00f6sserer Z-Abstand verbessert die Ausl\u00f6sung, hinterl\u00e4sst aber sichtbare Spuren. Nur f\u00fcr Fl\u00e4chen w\u00e4hlen, die nicht sichtbar oder nicht funktional sind.';
+  } else {
+    disc.style.display = 'none';
   }
+}
 
-  const { messages, lang = 'de' } = req.body;
-  if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Invalid request' });
+function generateProfile() {
+  var isEN = lang === 'en';
+  var printer = document.getElementById('f-printer').value.trim() || (isEN ? 'Unknown Printer' : 'Unbekannter Drucker');
+  var material = document.getElementById('f-material').value;
+  var slicer = document.getElementById('f-slicer').value;
+  var object = document.getElementById('f-object').value.trim() || (isEN ? 'General object' : 'Allgemeines Objekt');
+  var qVal = document.getElementById('f-quality').value;
+  var quality = qVal === 'draft' ? (isEN ? 'Fast (Draft)' : 'Schnell (Draft)') : qVal === 'balanced' ? (isEN ? 'Balanced' : 'Ausgewogen') : (isEN ? 'High Quality' : 'Hohe Qualit\u00e4t');
+  var supLabel = supType === 'none' ? (isEN ? 'No supports' : 'Kein Support') : supType === 'tree' ? (isEN ? 'Tree/Organic' : 'Tree/Organisch') : (isEN ? 'Normal/Linear' : 'Normal/Linear');
+  var surfLabel = supType !== 'none' ? (surfType === 'hidden' ? (isEN ? 'non-visible/non-functional surface' : 'unsichtbare/nicht-funktionale Fl\u00e4che') : (isEN ? 'visible/functional surface' : 'sichtbare/funktionale Fl\u00e4che')) : '';
+  closeModal();
+  document.getElementById('chips-wrap').style.display = 'none';
+  var prompt = isEN
+    ? 'Create a detailed print profile for: Printer: ' + printer + ' | Material: ' + material + ' | Slicer: ' + slicer + ' | Object: ' + object + ' | Quality: ' + quality + ' | Support: ' + supLabel + (supType !== 'none' ? ' on ' + surfLabel : '') + '. Structure: 1) Profile header as title 2) Core values with exact numbers: print temp, bed temp, layer height, infill %, pattern, speed, cooling, retraction, perimeters, top/bottom layers 3) Supports if enabled: type, Z-gap top/bottom, interface layers, density, overhang angle. Note: ' + (surfType === 'hidden' ? 'larger Z-gap for non-visible surface' : 'minimal Z-gap for clean surface') + ' 4) Why this profile: 2-3 sentences 5) Disclaimer: This profile is a starting point. Calibrate based on test prints. Use exact ' + slicer + ' terminology. No emojis.'
+    : 'Erstelle ein detailliertes Druckprofil f\u00fcr: Drucker: ' + printer + ' | Material: ' + material + ' | Slicer: ' + slicer + ' | Objekt: ' + object + ' | Qualit\u00e4t: ' + quality + ' | Support: ' + supLabel + (supType !== 'none' ? ' auf ' + surfLabel : '') + '. Struktur: 1) Profil-Kopf als Titel 2) Kernwerte mit genauen Zahlen: Drucktemp, Betttemp, Schichth\u00f6he, Infill-%, Muster, Geschwindigkeit, K\u00fchlung, Retraktion, Perimeter, Top/Bottom-Schichten 3) Supports falls aktiviert: Typ, Z-Abstand oben/unten, Interface-Schichten, Dichte, \u00dcberhang-Winkel. Beachte: ' + (surfType === 'hidden' ? 'gr\u00f6sserer Z-Abstand da nicht sichtbar' : 'minimaler Z-Abstand f\u00fcr saubere Oberfl\u00e4che') + ' 4) Warum dieses Profil: 2-3 S\u00e4tze 5) Disclaimer: Dieses Profil ist ein Startpunkt. Kalibriere anhand deiner Testdrucke. Verwende exakte ' + slicer + '-Bezeichnungen. Keine Emojis.';
+  send(prompt, null, null);
+}
 
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: SYSTEMS[lang] || SYSTEMS.de,
-        messages
-      })
-    });
-    const data = await response.json();
-    if (!response.ok) return res.status(response.status).json({ error: data.error?.message || 'API error' });
-    return res.status(200).json({ reply: data.content?.[0]?.text || '' });
-  } catch (err) {
-    return res.status(500).json({ error: 'Internal server error: ' + err.message });
+function exportPDF() {
+  if (chatHistory.length === 0) return;
+  var isEN = lang === 'en';
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('de-CH') + ' \u00b7 ' + now.toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'});
+  var msgs = history.map(function(m) {
+    var isUser = m.role === 'user';
+    var text = typeof m.content === 'string' ? m.content : m.content.filter(function(c){return c.type==='text';}).map(function(c){return c.text;}).join(' ');
+    var label = isUser ? (isEN ? 'You' : 'Du') : '3dworkbench Assistant';
+    var bg = isUser ? '#f7f7f7' : '#f0f0f0';
+    var borderCol = isUser ? '#ddd' : '#222';
+    return '<div style="margin-bottom:14px"><div style="font-family:monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:' + (isUser?'#999':'#333') + ';margin-bottom:4px">' + label + '</div><div style="font-size:12px;line-height:1.7;color:#333;padding:10px 12px;background:' + bg + ';border-left:3px solid ' + borderCol + '">' + text.replace(/\n/g,'<br>') + '</div></div>';
+  }).join('');
+  var doc = '<html><head><meta charset="UTF-8"><title>3dworkbench Chat Export</title>';
+  doc += '<style>body{font-family:sans-serif;color:#111;margin:0}';
+  doc += '#hd{background:#0a0a0a;padding:20px 28px;display:flex;align-items:center;gap:14px}';
+  doc += '#bn{font-family:monospace;font-size:13px;font-weight:700;color:#fff;letter-spacing:0.05em}';
+  doc += '#bs{font-family:monospace;font-size:9px;color:#555;text-transform:uppercase;margin-top:2px}';
+  doc += '#bd{font-family:monospace;font-size:9px;color:#444;margin-left:auto}';
+  doc += '#body{padding:24px 28px}';
+  doc += '#title{font-family:monospace;font-size:10px;color:#999;text-transform:uppercase;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid #eee}';
+  doc += '#ft{padding:14px 28px;border-top:1px solid #eee;display:flex;justify-content:space-between;margin-top:24px}';
+  doc += '#fb,#fu{font-family:monospace;font-size:8px;color:#bbb;text-transform:uppercase}';
+  doc += '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
+  doc += '</style></head><body>';
+  doc += '<div id="hd"><div><div id="bn">3dworkbench</div><div id="bs">Assistant &middot; FDM</div></div><div id="bd">' + dateStr + '</div></div>';
+  doc += '<div id="body"><div id="title">Chat Export &mdash; support.3dworkbench.ch</div>' + msgs + '</div>';
+  doc += '<div id="ft"><div id="fb">3dworkbench &middot; ' + (isEN ? 'AI-assisted &middot; All information without guarantee' : 'KI-gest&uuml;tzt &middot; Alle Angaben ohne Gew&auml;hr') + '</div><div id="fu">support.3dworkbench.ch</div></div>';
+  doc += '<' + '/body><' + '/html>';
+  var win = window.open('', '_blank');
+  win.document.write(doc);
+  win.document.close();
+  win.focus();
+  setTimeout(function(){ win.print(); }, 600);
+}
+
+function doSend() {
+  var inp = document.getElementById('inp');
+  var text = inp.value.trim();
+  if ((!text && !pendingImageB64) || busy) return;
+  inp.value = '';
+  document.getElementById('chips-wrap').style.display = 'none';
+  var img = pendingImageB64;
+  var imgType = pendingImageType;
+  removeImage();
+  send(text, img, imgType);
+}
+
+function send(text, imgB64, imgType) {
+  if (busy) return;
+  if (imgB64) {
+    var userContent = [];
+    if (text) userContent.push({type:'text', text:text});
+    userContent.push({type:'image', source:{type:'base64', media_type:imgType, data:imgB64}});
+    addMsgWithImg('user', text, imgB64, imgType);
+    chatHistory.push({role:'user', content:userContent});
+  } else {
+    addMsg('user', text);
+    chatHistory.push({role:'user', content:text});
   }
-};
+  busy = true;
+  document.getElementById('send-btn').disabled = true;
+  showTyping();
+  fetch('/api/chat', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({messages: chatHistory, lang: lang})
+  }).then(function(res){ return res.json(); }).then(function(data) {
+    var reply = data.reply || (data.error ? data.error : 'Error.');
+    removeTyping();
+    addMsg('bot', reply);
+    chatHistory.push({role:'assistant', content:reply});
+    busy = false;
+    document.getElementById('send-btn').disabled = false;
+  }).catch(function() {
+    removeTyping();
+    addMsg('bot', STRINGS[lang].error);
+    busy = false;
+    document.getElementById('send-btn').disabled = false;
+  });
+}
+
+// Init
+(function() {
+  document.getElementById('chips-label').textContent = STRINGS['en'].chipsLabel;
+  document.getElementById('inp').placeholder = STRINGS['en'].placeholder;
+  document.getElementById('hsub').textContent = STRINGS['en'].sub;
+  addMsg('bot', STRINGS['en'].welcome);
+  renderChips();
+})();
+</script>
+</body>
+</html>
