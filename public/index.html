@@ -499,7 +499,7 @@ function exportPDF(){
     '<div><div id="bname">3dworkbench</div><div id="bsub">Assistant &middot; FDM</div></div><div id="bdate">'+dateStr+'</div></div>',
     '<div id="body"><div id="title">Chat Export &mdash; support.3dworkbench.ch</div>'+msgs+'</div>',
     '<div id="footer"><div id="fbrand">3dworkbench &middot; '+(isEN?'AI-assisted &middot; All information without guarantee':'KI-gest&uuml;tzt &middot; Alle Angaben ohne Gew&auml;hr')+'</div><div id="furl">support.3dworkbench.ch</div></div>',
-    '</body></html>'];
+    '</' + 'body></' + 'html>'];
   const html=parts.join('');
   const win=window.open('','_blank');
   win.document.write(html);
@@ -614,8 +614,8 @@ function exportPDF(){
   <div id="footer-brand">3dworkbench · ${isEN?'AI-assisted · All information without guarantee':'KI-gestützt · Alle Angaben ohne Gewähr'}</div>
   <div id="footer-url">support.3dworkbench.ch</div>
 </div>
-</body>
-</html>`;
+</' + 'body>
+</' + 'html>`;
 
   const win=window.open('','_blank');
   win.document.write(html.replace(/<\/script>/g,'<\/script>'));
