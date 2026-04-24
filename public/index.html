@@ -220,7 +220,7 @@
 </div>
 
 <script>
-var S = {
+var STRINGS = {
   en: {
     sub: 'Assistant \u00b7 FDM',
     status: 'System online',
@@ -262,11 +262,11 @@ function setLang(l) {
   document.querySelectorAll('.lang-btn').forEach(function(b) {
     b.classList.toggle('active', b.textContent === l.toUpperCase());
   });
-  document.getElementById('hsub').textContent = S[l].sub;
-  document.getElementById('stext').textContent = S[l].status;
-  document.getElementById('inp').placeholder = S[l].placeholder;
-  document.getElementById('foot').textContent = S[l].foot;
-  document.getElementById('chips-label').textContent = S[l].chipsLabel;
+  document.getElementById('hsub').textContent = STRINGS[l].sub;
+  document.getElementById('stext').textContent = STRINGS[l].status;
+  document.getElementById('inp').placeholder = STRINGS[l].placeholder;
+  document.getElementById('foot').textContent = STRINGS[l].foot;
+  document.getElementById('chips-label').textContent = STRINGS[l].chipsLabel;
   document.documentElement.lang = l;
   var isEN = l === 'en';
   document.getElementById('modal-title').textContent = isEN ? 'Print Profile Generator' : 'Druckprofil Generator';
@@ -293,7 +293,7 @@ function setLang(l) {
   if (history.length === 0) {
     document.getElementById('messages').innerHTML = '';
     document.getElementById('chips-wrap').style.display = 'block';
-    addMsg('bot', S[l].welcome);
+    addMsg('bot', STRINGS[l].welcome);
     renderChips();
   }
 }
@@ -301,13 +301,13 @@ function setLang(l) {
 function renderChips() {
   var box = document.getElementById('chips');
   box.innerHTML = '';
-  S[lang].chips.forEach(function(label, i) {
+  STRINGS[lang].chips.forEach(function(label, i) {
     var btn = document.createElement('button');
     btn.className = 'chip';
     btn.textContent = label;
     btn.onclick = function() {
       document.getElementById('chips-wrap').style.display = 'none';
-      send(S[lang].chipQ[i], null, null);
+      send(STRINGS[lang].chipQ[i], null, null);
     };
     box.appendChild(btn);
   });
@@ -328,7 +328,7 @@ function addMsg(role, text) {
   row.className = 'row ' + role;
   var av = document.createElement('div');
   av.className = 'avatar';
-  av.textContent = role === 'bot' ? '3DW' : S[lang].you;
+  av.textContent = role === 'bot' ? '3DW' : STRINGS[lang].you;
   var bub = document.createElement('div');
   bub.className = 'bubble';
   bub.innerHTML = '<p>' + md(text) + '</p>';
@@ -344,7 +344,7 @@ function addMsgWithImg(role, text, b64, mimeType) {
   row.className = 'row ' + role;
   var av = document.createElement('div');
   av.className = 'avatar';
-  av.textContent = role === 'bot' ? '3DW' : S[lang].you;
+  av.textContent = role === 'bot' ? '3DW' : STRINGS[lang].you;
   var bub = document.createElement('div');
   bub.className = 'bubble';
   var inner = text ? '<p>' + md(text) + '</p>' : '';
@@ -523,13 +523,20 @@ function send(text, imgB64, imgType) {
     document.getElementById('send-btn').disabled = false;
   }).catch(function() {
     removeTyping();
-    addMsg('bot', S[lang].error);
+    addMsg('bot', STRINGS[lang].error);
     busy = false;
     document.getElementById('send-btn').disabled = false;
   });
 }
 
-setLang('en');
+// Init
+(function() {
+  document.getElementById('chips-label').textContent = STRINGS['en'].chipsLabel;
+  document.getElementById('inp').placeholder = STRINGS['en'].placeholder;
+  document.getElementById('hsub').textContent = STRINGS['en'].sub;
+  addMsg('bot', STRINGS['en'].welcome);
+  renderChips();
+})();
 </script>
 </body>
 </html>
