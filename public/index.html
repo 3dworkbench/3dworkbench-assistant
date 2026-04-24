@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>3dworkbench Assistant</title>
-  <meta name="description" content="3dworkbench — Dein KI-Assistent für FDM 3D-Druck"/>
+  <meta name="description" content="3dworkbench — Your AI Assistant for FDM 3D Printing"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
   <style>
@@ -53,7 +53,7 @@
     #chips{padding:0 22px 12px;display:flex;flex-wrap:wrap;gap:7px;}
     .chip{font-size:11px;padding:5px 12px;border:1px solid #3a3a3a;background:#161616;color:#888;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;transition:all 0.12s;}
     .chip:hover{border-color:var(--border3);color:var(--text2);}
-    #img-preview{margin:0 22px 8px;display:none;position:relative;display:none;}
+    #img-preview{margin:0 22px 8px;display:none;}
     #img-preview img{max-height:100px;max-width:160px;border:1px solid #444;display:block;}
     #img-remove{position:absolute;top:-8px;right:-8px;width:18px;height:18px;background:var(--white);color:#000;border:none;cursor:pointer;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
     #bar{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-shrink:0;background:var(--bg);}
@@ -61,14 +61,12 @@
     .bar-btn:hover{background:#1e1e1e;border-color:#888;}
     .bar-btn svg{width:16px;height:16px;}
     #file-input{display:none;}
-    #inp{flex:1;background:var(--bg3);border:1px solid #555;padding:0 16px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);resize:none;line-height:1;height:40px;max-height:40px;overflow-y:auto;outline:none;transition:border-color 0.12s;}
+    #inp{flex:1;background:var(--bg3);border:1px solid #555;padding:0 16px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);resize:none;height:40px;outline:none;transition:border-color 0.12s;}
     #inp:focus{border-color:var(--border3);}
     #inp::placeholder{color:#666;}
-    #save-btn{width:40px;height:40px;background:var(--bg3);border:1px solid #555;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;}
-    #save-btn:hover{background:#1e1e1e;border-color:#888;}
-    #save-btn svg{width:16px;height:16px;}
-    #send-btn{width:40px;height:40px;background:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.15s,transform 0.1s;}
-    #send-btn:hover{opacity:0.8;}#send-btn:active{transform:scale(0.94);}#send-btn:disabled{opacity:0.15;cursor:default;}
+    #send-btn{width:40px;height:40px;background:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.15s;}
+    #send-btn:hover{opacity:0.8;}
+    #send-btn:disabled{opacity:0.15;cursor:default;}
     #send-btn svg{width:16px;height:16px;}
     #foot{text-align:center;font-size:8px;color:var(--text3);padding:5px 0 7px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.05em;text-transform:uppercase;flex-shrink:0;border-top:1px solid var(--border);background:var(--bg);}
     .toggle-group{display:flex;gap:1px;background:#1a1a1a;border:1px solid #2a2a2a;}
@@ -110,43 +108,37 @@
       <button class="lang-btn" onclick="setLang('de')">DE</button>
     </div>
   </div>
-
   <div id="status-bar">
     <div id="sdot"></div>
     <div id="stext">System online</div>
     <a id="donate-link" href="https://paypal.me/AzraRibic" target="_blank" rel="noopener">Donate via PayPal</a>
   </div>
-
   <div id="messages"></div>
-
   <div id="chips-wrap">
     <div id="chips-label"></div>
     <div id="chips"></div>
   </div>
-
   <div id="img-preview">
     <img id="preview-img" src="" alt="preview"/>
     <button id="img-remove" onclick="removeImage()">x</button>
   </div>
-
   <div id="bar">
-    <button class="bar-btn" onclick="openModal()" title="Druckprofil generieren">
+    <button class="bar-btn" onclick="openModal()" title="Print Profile Generator">
       <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
       </svg>
     </button>
     <input type="file" id="file-input" accept="image/*" onchange="handleImage(event)"/>
-    <button class="bar-btn" onclick="document.getElementById('file-input').click()" title="Bild hochladen">
+    <button class="bar-btn" onclick="document.getElementById('file-input').click()" title="Upload image">
       <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
         <polyline points="21 15 16 10 5 21"/>
       </svg>
     </button>
-    <textarea id="inp" rows="1"
-      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();doSend()}"
-      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"
-    ></textarea>
-    <button id="save-btn" onclick="exportPDF()" title="Save as PDF">
+    <input id="inp" type="text" placeholder="Ask your question…"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();doSend()}"
+    />
+    <button class="bar-btn" onclick="exportPDF()" title="Save as PDF">
       <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
       </svg>
@@ -157,14 +149,14 @@
       </svg>
     </button>
   </div>
-  <div id="foot">Powered by 3dworkbench · KI-gestützt · Alle Angaben ohne Gewähr</div>
+  <div id="foot">Powered by 3dworkbench · AI-assisted · All information without guarantee</div>
 
   <div id="modal-overlay">
     <div id="modal">
-      <h2 id="modal-title">Druckprofil Generator</h2>
+      <h2 id="modal-title">Print Profile Generator</h2>
       <div class="form-row">
-        <label id="lbl-printer">Drucker</label>
-        <input type="text" id="f-printer" placeholder="z.B. Bambu X1C, Prusa MK4, Ender 3"/>
+        <label id="lbl-printer">Printer</label>
+        <input type="text" id="f-printer" placeholder="e.g. Bambu X1C, Prusa MK4, Ender 3"/>
       </div>
       <div class="form-row">
         <label id="lbl-material">Material</label>
@@ -190,438 +182,351 @@
         </select>
       </div>
       <div class="form-row">
-        <label id="lbl-object">Objekt / Verwendungszweck</label>
-        <input type="text" id="f-object" placeholder="z.B. Mechanisches Teil, Dekor, Prototyp"/>
+        <label id="lbl-object">Object / Purpose</label>
+        <input type="text" id="f-object" placeholder="e.g. mechanical part, decoration, prototype"/>
       </div>
       <div class="form-row">
-        <label id="lbl-quality">Qualitätspriorität</label>
+        <label id="lbl-quality">Quality Priority</label>
         <select id="f-quality">
-          <option value="draft">Schnell (Draft)</option>
-          <option value="balanced" selected>Ausgewogen</option>
-          <option value="quality">Hohe Qualität</option>
+          <option value="draft">Fast (Draft)</option>
+          <option value="balanced" selected>Balanced</option>
+          <option value="quality">High Quality</option>
         </select>
       </div>
       <hr class="modal-divider"/>
-      <div class="modal-section-label" id="lbl-support-section">Support-Einstellungen</div>
+      <div class="modal-section-label" id="lbl-support-section">Support Settings</div>
       <div class="form-row">
-        <label id="lbl-support-type">Support-Typ</label>
+        <label id="lbl-support-type">Support Type</label>
         <div class="toggle-group">
-          <button class="toggle-opt" id="sup-none" onclick="setSup('none')">Kein Support</button>
-          <button class="toggle-opt active" id="sup-tree" onclick="setSup('tree')">Tree / Organisch</button>
+          <button class="toggle-opt" id="sup-none" onclick="setSup('none')">No Support</button>
+          <button class="toggle-opt active" id="sup-tree" onclick="setSup('tree')">Tree / Organic</button>
           <button class="toggle-opt" id="sup-normal" onclick="setSup('normal')">Normal / Linear</button>
         </div>
       </div>
       <div class="form-row" id="surface-row" style="margin-top:12px;">
-        <label id="lbl-surface">Support trifft auf...</label>
+        <label id="lbl-surface">Support contacts...</label>
         <div class="toggle-group">
-          <button class="toggle-opt active" id="surf-visible" onclick="setSurf('visible')">Sichtbare Fläche</button>
-          <button class="toggle-opt" id="surf-hidden" onclick="setSurf('hidden')">Unsichtbare Fläche</button>
+          <button class="toggle-opt active" id="surf-visible" onclick="setSurf('visible')">Visible Surface</button>
+          <button class="toggle-opt" id="surf-hidden" onclick="setSurf('hidden')">Hidden Surface</button>
         </div>
         <div id="surface-disclaimer"></div>
       </div>
       <div id="modal-actions">
-        <button id="modal-cancel" onclick="closeModal()">Abbrechen</button>
-        <button id="modal-generate" onclick="generateProfile()">Profil generieren</button>
+        <button id="modal-cancel" onclick="closeModal()">Cancel</button>
+        <button id="modal-generate" onclick="generateProfile()">Generate Profile</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-const S={
-  de:{
-    sub:'Assistant · FDM',
-    status:'System online',
-    placeholder:'Stell deine Frage…',
-    chipsLabel:'Schnellstart — oder stell deine eigene Frage:',
-    welcome:'Willkommen bei 3dworkbench.\n\nHast du eine Frage rund ums 3D-Drucken? Egal ob Slicer-Settings, Materialwahl, Fehlersuche oder Druckoptimierung — ich helfe dir weiter.',
-    chips:['Haftungsprobleme','Materialwahl','Supports','Stringing','Slicer','Schichtqualität'],
-    chipQ:['Ich habe Haftungsprobleme beim Drucken — kannst du mir helfen?','Ich habe Fragen zur Materialwahl — kannst du mir helfen?','Ich habe Probleme mit meinen Supports — kannst du mir helfen?','Ich habe Stringing-Probleme — kannst du mir helfen?','Ich suche einen passenden Slicer — kannst du mir helfen?','Ich habe Fragen zur Schichtqualität — kannst du mir helfen?'],
-    you:'USR',error:'Verbindungsfehler — bitte versuch es nochmal.',
-    foot:'Powered by 3dworkbench · KI-gestützt · Alle Angaben ohne Gewähr',
-    system:'Du bist der offizielle KI-Assistent von 3dworkbench — einer 3D-Druck Community auf Instagram. Du hilfst bei FDM-Druck: Slicer, Materialien, Fehlersuche, Kalibrierung, Supports, Post-Processing. Antworte auf Deutsch, präzise, praxisnah. Max. 5 Punkte. Ton: technisch kompetent, klar, community-nah. Verwende KEINE Emojis. Wenn ein Bild eines Fehldrucks hochgeladen wird, analysiere es genau und gib konkrete Lösungsschritte. Erwähne gelegentlich, dass der User der 3dworkbench Community auf Instagram folgen kann.'
+var S = {
+  en: {
+    sub: 'Assistant \u00b7 FDM',
+    status: 'System online',
+    placeholder: 'Ask your question\u2026',
+    chipsLabel: 'Quick start \u2014 or ask your own question:',
+    welcome: 'Welcome to 3dworkbench.\n\nGot a question about 3D printing? Whether it\'s slicer settings, material choice, troubleshooting, or print optimization \u2014 I\'m here to help.',
+    chips: ['Bed adhesion','Material choice','Supports','Stringing','Slicer tips','Layer quality'],
+    chipQ: ['I have bed adhesion issues \u2014 can you help?','I have questions about material choice \u2014 can you help?','I have issues with my supports \u2014 can you help?','I have stringing problems \u2014 can you help?','I am looking for a suitable slicer \u2014 can you help?','I have questions about layer quality \u2014 can you help?'],
+    you: 'USR',
+    error: 'Connection error \u2014 please try again.',
+    foot: 'Powered by 3dworkbench \u00b7 AI-assisted \u00b7 All information without guarantee',
+    system: 'You are the official AI assistant of 3dworkbench \u2014 a 3D printing community on Instagram. Help with FDM printing: slicers, materials, troubleshooting, calibration, supports, post-processing. Answer in English, concise and practical. Max 5 points. Tone: technically competent, clear, community-friendly. Do NOT use emojis. When an image of a failed print is uploaded, analyze it carefully and provide concrete solution steps. Occasionally mention that the user can follow 3dworkbench on Instagram.'
   },
-  en:{
-    sub:'Assistant · FDM',
-    status:'System online',
-    placeholder:'Ask your question…',
-    chipsLabel:'Quick start — or ask your own question:',
-    welcome:"Welcome to 3dworkbench.\n\nGot a question about 3D printing? Whether it's slicer settings, material choice, troubleshooting, or print optimization — I'm here to help.",
-    chips:['Bed adhesion','Material choice','Supports','Stringing','Slicer tips','Layer quality'],
-    chipQ:['I have bed adhesion issues — can you help?','I have questions about material choice — can you help?','I have issues with my supports — can you help?','I have stringing problems — can you help?','I am looking for a suitable slicer — can you help?','I have questions about layer quality — can you help?'],
-    you:'USR',error:'Connection error — please try again.',
-    foot:'Powered by 3dworkbench · AI-assisted · All information without guarantee',
-    system:'You are the official AI assistant of 3dworkbench — a 3D printing community on Instagram. Help with FDM printing: slicers, materials, troubleshooting, calibration, supports, post-processing. Answer in English, concise and practical. Max 5 points. Tone: technically competent, clear, community-friendly. Do NOT use emojis. When an image of a failed print is uploaded, analyze it carefully and provide concrete solution steps. Occasionally mention that the user can follow 3dworkbench on Instagram.'
+  de: {
+    sub: 'Assistant \u00b7 FDM',
+    status: 'System online',
+    placeholder: 'Stell deine Frage\u2026',
+    chipsLabel: 'Schnellstart \u2014 oder stell deine eigene Frage:',
+    welcome: 'Willkommen bei 3dworkbench.\n\nHast du eine Frage rund ums 3D-Drucken? Egal ob Slicer-Settings, Materialwahl, Fehlersuche oder Druckoptimierung \u2014 ich helfe dir weiter.',
+    chips: ['Haftungsprobleme','Materialwahl','Supports','Stringing','Slicer','Schichtqualit\u00e4t'],
+    chipQ: ['Ich habe Haftungsprobleme beim Drucken \u2014 kannst du mir helfen?','Ich habe Fragen zur Materialwahl \u2014 kannst du mir helfen?','Ich habe Probleme mit meinen Supports \u2014 kannst du mir helfen?','Ich habe Stringing-Probleme \u2014 kannst du mir helfen?','Ich suche einen passenden Slicer \u2014 kannst du mir helfen?','Ich habe Fragen zur Schichtqualit\u00e4t \u2014 kannst du mir helfen?'],
+    you: 'USR',
+    error: 'Verbindungsfehler \u2014 bitte versuch es nochmal.',
+    foot: 'Powered by 3dworkbench \u00b7 KI-gest\u00fctzt \u00b7 Alle Angaben ohne Gew\u00e4hr',
+    system: 'Du bist der offizielle KI-Assistent von 3dworkbench \u2014 einer 3D-Druck Community auf Instagram. Du hilfst bei FDM-Druck: Slicer, Materialien, Fehlersuche, Kalibrierung, Supports, Post-Processing. Antworte auf Deutsch, pr\u00e4zise, praxisnah. Max. 5 Punkte. Ton: technisch kompetent, klar, community-nah. Verwende KEINE Emojis. Wenn ein Bild eines Fehldrucks hochgeladen wird, analysiere es genau und gib konkrete L\u00f6sungsschritte. Erw\u00e4hne gelegentlich, dass der User der 3dworkbench Community auf Instagram folgen kann.'
   }
 };
 
-let lang='de', history=[], busy=false, pendingImageB64=null, pendingImageType=null, supType='tree', surfType='visible';
+var lang = 'en';
+var history = [];
+var busy = false;
+var pendingImageB64 = null;
+var pendingImageType = null;
+var supType = 'tree';
+var surfType = 'visible';
 
-function setLang(l){
-  lang=l;
-  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.textContent===l.toUpperCase()));
-  document.getElementById('hsub').textContent=S[l].sub;
-  document.getElementById('stext').textContent=S[l].status;
-  document.getElementById('inp').placeholder=S[l].placeholder;
-  document.getElementById('foot').textContent=S[l].foot;
-  document.getElementById('chips-label').textContent=S[l].chipsLabel;
-  document.documentElement.lang=l;
-  const isEN=l==='en';
-  document.getElementById('modal-title').textContent=isEN?'Print Profile Generator':'Druckprofil Generator';
-  document.getElementById('lbl-printer').textContent=isEN?'Printer':'Drucker';
-  document.getElementById('lbl-material').textContent='Material';
-  document.getElementById('lbl-slicer').textContent='Slicer';
-  document.getElementById('lbl-object').textContent=isEN?'Object / Purpose':'Objekt / Verwendungszweck';
-  document.getElementById('lbl-quality').textContent=isEN?'Quality Priority':'Qualitätspriorität';
-  document.getElementById('lbl-support-section').textContent=isEN?'Support Settings':'Support-Einstellungen';
-  document.getElementById('lbl-support-type').textContent=isEN?'Support Type':'Support-Typ';
-  document.getElementById('lbl-surface').textContent=isEN?'Support contacts...':'Support trifft auf...';
-  document.getElementById('sup-none').textContent=isEN?'No Support':'Kein Support';
-  document.getElementById('sup-tree').textContent=isEN?'Tree / Organic':'Tree / Organisch';
-  document.getElementById('sup-normal').textContent=isEN?'Normal / Linear':'Normal / Linear';
-  document.getElementById('surf-visible').textContent=isEN?'Visible Surface':'Sichtbare Fläche';
-  document.getElementById('surf-hidden').textContent=isEN?'Hidden Surface':'Unsichtbare Fläche';
-  document.getElementById('modal-cancel').textContent=isEN?'Cancel':'Abbrechen';
-  document.getElementById('modal-generate').textContent=isEN?'Generate Profile':'Profil generieren';
-  document.getElementById('f-printer').placeholder=isEN?'e.g. Bambu X1C, Prusa MK4, Ender 3':'z.B. Bambu X1C, Prusa MK4, Ender 3';
-  document.getElementById('f-object').placeholder=isEN?'e.g. mechanical part, decoration, prototype':'z.B. Mechanisches Teil, Dekor, Prototyp';
-  const qOpts=document.getElementById('f-quality');
-  const qLabels=isEN?['Fast (Draft)','Balanced','High Quality']:['Schnell (Draft)','Ausgewogen','Hohe Qualität'];
-  for(let i=0;i<qOpts.options.length;i++) qOpts.options[i].text=qLabels[i];
-  if(history.length===0){
-    document.getElementById('messages').innerHTML='';
-    document.getElementById('chips-wrap').style.display='block';
-    addMsg('bot',S[l].welcome);
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(function(b) {
+    b.classList.toggle('active', b.textContent === l.toUpperCase());
+  });
+  document.getElementById('hsub').textContent = S[l].sub;
+  document.getElementById('stext').textContent = S[l].status;
+  document.getElementById('inp').placeholder = S[l].placeholder;
+  document.getElementById('foot').textContent = S[l].foot;
+  document.getElementById('chips-label').textContent = S[l].chipsLabel;
+  document.documentElement.lang = l;
+  var isEN = l === 'en';
+  document.getElementById('modal-title').textContent = isEN ? 'Print Profile Generator' : 'Druckprofil Generator';
+  document.getElementById('lbl-printer').textContent = isEN ? 'Printer' : 'Drucker';
+  document.getElementById('lbl-material').textContent = 'Material';
+  document.getElementById('lbl-slicer').textContent = 'Slicer';
+  document.getElementById('lbl-object').textContent = isEN ? 'Object / Purpose' : 'Objekt / Verwendungszweck';
+  document.getElementById('lbl-quality').textContent = isEN ? 'Quality Priority' : 'Qualit\u00e4tspriorit\u00e4t';
+  document.getElementById('lbl-support-section').textContent = isEN ? 'Support Settings' : 'Support-Einstellungen';
+  document.getElementById('lbl-support-type').textContent = isEN ? 'Support Type' : 'Support-Typ';
+  document.getElementById('lbl-surface').textContent = isEN ? 'Support contacts...' : 'Support trifft auf...';
+  document.getElementById('sup-none').textContent = isEN ? 'No Support' : 'Kein Support';
+  document.getElementById('sup-tree').textContent = isEN ? 'Tree / Organic' : 'Tree / Organisch';
+  document.getElementById('sup-normal').textContent = isEN ? 'Normal / Linear' : 'Normal / Linear';
+  document.getElementById('surf-visible').textContent = isEN ? 'Visible Surface' : 'Sichtbare Fl\u00e4che';
+  document.getElementById('surf-hidden').textContent = isEN ? 'Hidden Surface' : 'Unsichtbare Fl\u00e4che';
+  document.getElementById('modal-cancel').textContent = isEN ? 'Cancel' : 'Abbrechen';
+  document.getElementById('modal-generate').textContent = isEN ? 'Generate Profile' : 'Profil generieren';
+  document.getElementById('f-printer').placeholder = isEN ? 'e.g. Bambu X1C, Prusa MK4, Ender 3' : 'z.B. Bambu X1C, Prusa MK4, Ender 3';
+  document.getElementById('f-object').placeholder = isEN ? 'e.g. mechanical part, decoration, prototype' : 'z.B. Mechanisches Teil, Dekor, Prototyp';
+  var qOpts = document.getElementById('f-quality');
+  var qLabels = isEN ? ['Fast (Draft)','Balanced','High Quality'] : ['Schnell (Draft)','Ausgewogen','Hohe Qualit\u00e4t'];
+  for (var i = 0; i < qOpts.options.length; i++) qOpts.options[i].text = qLabels[i];
+  if (history.length === 0) {
+    document.getElementById('messages').innerHTML = '';
+    document.getElementById('chips-wrap').style.display = 'block';
+    addMsg('bot', S[l].welcome);
     renderChips();
   }
 }
 
-function renderChips(){
-  const box=document.getElementById('chips');
-  box.innerHTML='';
-  S[lang].chips.forEach((label,i)=>{
-    const btn=document.createElement('button');
-    btn.className='chip';
-    btn.textContent=label;
-    btn.onclick=()=>{
-      document.getElementById('chips-wrap').style.display='none';
-      send(S[lang].chipQ[i],null,null);
+function renderChips() {
+  var box = document.getElementById('chips');
+  box.innerHTML = '';
+  S[lang].chips.forEach(function(label, i) {
+    var btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = label;
+    btn.onclick = function() {
+      document.getElementById('chips-wrap').style.display = 'none';
+      send(S[lang].chipQ[i], null, null);
     };
     box.appendChild(btn);
   });
 }
 
-function md(t){
-  return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`(.+?)`/g,'<code>$1</code>').replace(/\n- /g,'<br>• ').replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');
+function md(t) {
+  return t
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/\n- /g, '<br>\u2022 ')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
 }
 
-function addMsg(role,text){
-  const box=document.getElementById('messages');
-  const row=document.createElement('div');row.className=`row ${role}`;
-  const av=document.createElement('div');av.className='avatar';av.textContent=role==='bot'?'3DW':S[lang].you;
-  const bub=document.createElement('div');bub.className='bubble';bub.innerHTML=`<p>${md(text)}</p>`;
-  row.appendChild(av);row.appendChild(bub);box.appendChild(row);box.scrollTop=box.scrollHeight;
+function addMsg(role, text) {
+  var box = document.getElementById('messages');
+  var row = document.createElement('div');
+  row.className = 'row ' + role;
+  var av = document.createElement('div');
+  av.className = 'avatar';
+  av.textContent = role === 'bot' ? '3DW' : S[lang].you;
+  var bub = document.createElement('div');
+  bub.className = 'bubble';
+  bub.innerHTML = '<p>' + md(text) + '</p>';
+  row.appendChild(av);
+  row.appendChild(bub);
+  box.appendChild(row);
+  box.scrollTop = box.scrollHeight;
 }
 
-function addMsgWithImg(role,text,b64,mimeType){
-  const box=document.getElementById('messages');
-  const row=document.createElement('div');row.className=`row ${role}`;
-  const av=document.createElement('div');av.className='avatar';av.textContent=role==='bot'?'3DW':S[lang].you;
-  const bub=document.createElement('div');bub.className='bubble';
-  let inner=text?`<p>${md(text)}</p>`:'';
-  if(b64) inner+=`<img class="chat-img" src="data:${mimeType};base64,${b64}" alt="upload"/>`;
-  bub.innerHTML=inner;
-  row.appendChild(av);row.appendChild(bub);box.appendChild(row);box.scrollTop=box.scrollHeight;
+function addMsgWithImg(role, text, b64, mimeType) {
+  var box = document.getElementById('messages');
+  var row = document.createElement('div');
+  row.className = 'row ' + role;
+  var av = document.createElement('div');
+  av.className = 'avatar';
+  av.textContent = role === 'bot' ? '3DW' : S[lang].you;
+  var bub = document.createElement('div');
+  bub.className = 'bubble';
+  var inner = text ? '<p>' + md(text) + '</p>' : '';
+  if (b64) inner += '<img class="chat-img" src="data:' + mimeType + ';base64,' + b64 + '" alt="upload"/>';
+  bub.innerHTML = inner;
+  row.appendChild(av);
+  row.appendChild(bub);
+  box.appendChild(row);
+  box.scrollTop = box.scrollHeight;
 }
 
-function showTyping(){
-  const box=document.getElementById('messages');
-  const row=document.createElement('div');row.className='row bot';row.id='typing';
-  const av=document.createElement('div');av.className='avatar';av.textContent='3DW';
-  const bub=document.createElement('div');bub.className='bubble';
-  bub.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';
-  row.appendChild(av);row.appendChild(bub);box.appendChild(row);box.scrollTop=box.scrollHeight;
+function showTyping() {
+  var box = document.getElementById('messages');
+  var row = document.createElement('div');
+  row.className = 'row bot';
+  row.id = 'typing';
+  var av = document.createElement('div');
+  av.className = 'avatar';
+  av.textContent = '3DW';
+  var bub = document.createElement('div');
+  bub.className = 'bubble';
+  bub.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  row.appendChild(av);
+  row.appendChild(bub);
+  box.appendChild(row);
+  box.scrollTop = box.scrollHeight;
 }
 
-function removeTyping(){const t=document.getElementById('typing');if(t)t.remove();}
+function removeTyping() {
+  var t = document.getElementById('typing');
+  if (t) t.remove();
+}
 
-function handleImage(e){
-  const file=e.target.files[0];if(!file)return;
-  pendingImageType=file.type||'image/jpeg';
-  const reader=new FileReader();
-  reader.onload=function(ev){
-    pendingImageB64=ev.target.result.split(',')[1];
-    document.getElementById('preview-img').src=ev.target.result;
-    document.getElementById('img-preview').style.display='block';
+function handleImage(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  pendingImageType = file.type || 'image/jpeg';
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    pendingImageB64 = ev.target.result.split(',')[1];
+    document.getElementById('preview-img').src = ev.target.result;
+    document.getElementById('img-preview').style.display = 'block';
   };
   reader.readAsDataURL(file);
-  e.target.value='';
+  e.target.value = '';
 }
 
-function removeImage(){
-  pendingImageB64=null;pendingImageType=null;
-  document.getElementById('img-preview').style.display='none';
-  document.getElementById('preview-img').src='';
+function removeImage() {
+  pendingImageB64 = null;
+  pendingImageType = null;
+  document.getElementById('img-preview').style.display = 'none';
+  document.getElementById('preview-img').src = '';
 }
 
-function openModal(){document.getElementById('modal-overlay').classList.add('open');}
-function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+function openModal() { document.getElementById('modal-overlay').classList.add('open'); }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
 
-function setSup(v){
-  supType=v;
-  ['none','tree','normal'].forEach(t=>{
-    const el=document.getElementById('sup-'+t);
-    if(el)el.classList.toggle('active',t===v);
+function setSup(v) {
+  supType = v;
+  ['none','tree','normal'].forEach(function(t) {
+    var el = document.getElementById('sup-' + t);
+    if (el) el.classList.toggle('active', t === v);
   });
-  document.getElementById('surface-row').style.display=v==='none'?'none':'block';
+  document.getElementById('surface-row').style.display = v === 'none' ? 'none' : 'block';
 }
 
-function setSurf(v){
-  surfType=v;
-  ['visible','hidden'].forEach(t=>{
-    const el=document.getElementById('surf-'+t);
-    if(el)el.classList.toggle('active',t===v);
+function setSurf(v) {
+  surfType = v;
+  ['visible','hidden'].forEach(function(t) {
+    var el = document.getElementById('surf-' + t);
+    if (el) el.classList.toggle('active', t === v);
   });
-  const disc=document.getElementById('surface-disclaimer');
-  const isEN=lang==='en';
-  if(v==='hidden'){
-    disc.style.display='block';
-    disc.innerHTML=isEN
-      ?'<strong style="color:#555;font-weight:500;">Note:</strong> A larger Z-gap improves removal but leaves visible marks. Only select for surfaces hidden or non-functional in the finished object.'
-      :'<strong style="color:#555;font-weight:500;">Hinweis:</strong> Grösserer Z-Abstand verbessert die Ablösung, hinterlässt aber sichtbare Spuren. Nur für Flächen wählen, die im fertigen Objekt nicht sichtbar oder nicht funktional sind.';
+  var disc = document.getElementById('surface-disclaimer');
+  var isEN = lang === 'en';
+  if (v === 'hidden') {
+    disc.style.display = 'block';
+    disc.innerHTML = isEN
+      ? '<strong style="color:#555;font-weight:500;">Note:</strong> A larger Z-gap improves removal but leaves visible marks. Only select for surfaces hidden or non-functional in the finished object.'
+      : '<strong style="color:#555;font-weight:500;">Hinweis:</strong> Gr\u00f6sserer Z-Abstand verbessert die Ausl\u00f6sung, hinterl\u00e4sst aber sichtbare Spuren. Nur f\u00fcr Fl\u00e4chen w\u00e4hlen, die nicht sichtbar oder nicht funktional sind.';
   } else {
-    disc.style.display='none';
+    disc.style.display = 'none';
   }
 }
 
-async function generateProfile(){
-  const isEN=lang==='en';
-  const printer=document.getElementById('f-printer').value.trim()||'Unbekannter Drucker';
-  const material=document.getElementById('f-material').value;
-  const slicer=document.getElementById('f-slicer').value;
-  const object=document.getElementById('f-object').value.trim()||(isEN?'General object':'Allgemeines Objekt');
-  const qVal=document.getElementById('f-quality').value;
-  const quality=qVal==='draft'?(isEN?'Fast (Draft)':'Schnell (Draft)'):qVal==='balanced'?(isEN?'Balanced':'Ausgewogen'):(isEN?'High Quality':'Hohe Qualität');
-  const supLabel=supType==='none'?(isEN?'No supports':'Kein Support'):supType==='tree'?(isEN?'Tree/Organic':'Tree/Organisch'):(isEN?'Normal/Linear':'Normal/Linear');
-  const surfLabel=supType!=='none'?(surfType==='hidden'?(isEN?'non-visible/non-functional surface':'unsichtbare/nicht-funktionale Fläche'):(isEN?'visible/functional surface':'sichtbare/funktionale Fläche')):'';
+function generateProfile() {
+  var isEN = lang === 'en';
+  var printer = document.getElementById('f-printer').value.trim() || (isEN ? 'Unknown Printer' : 'Unbekannter Drucker');
+  var material = document.getElementById('f-material').value;
+  var slicer = document.getElementById('f-slicer').value;
+  var object = document.getElementById('f-object').value.trim() || (isEN ? 'General object' : 'Allgemeines Objekt');
+  var qVal = document.getElementById('f-quality').value;
+  var quality = qVal === 'draft' ? (isEN ? 'Fast (Draft)' : 'Schnell (Draft)') : qVal === 'balanced' ? (isEN ? 'Balanced' : 'Ausgewogen') : (isEN ? 'High Quality' : 'Hohe Qualit\u00e4t');
+  var supLabel = supType === 'none' ? (isEN ? 'No supports' : 'Kein Support') : supType === 'tree' ? (isEN ? 'Tree/Organic' : 'Tree/Organisch') : (isEN ? 'Normal/Linear' : 'Normal/Linear');
+  var surfLabel = supType !== 'none' ? (surfType === 'hidden' ? (isEN ? 'non-visible/non-functional surface' : 'unsichtbare/nicht-funktionale Fl\u00e4che') : (isEN ? 'visible/functional surface' : 'sichtbare/funktionale Fl\u00e4che')) : '';
   closeModal();
-  document.getElementById('chips-wrap').style.display='none';
-  const promptDE=`Erstelle ein detailliertes Druckprofil für: Drucker: ${printer} | Material: ${material} | Slicer: ${slicer} | Objekt: ${object} | Qualität: ${quality} | Support: ${supLabel}${supType!=='none'?' auf '+surfLabel:''}.
-Strukturiere die Antwort so:
-1. PROFIL-KOPF: Drucker / Material / Qualität als Titel
-2. KERNWERTE (als klare Liste mit genauen Zahlen): Drucktemp, Betttemp, Schichthöhe, Infill-%, Infill-Muster, Geschwindigkeit, Kühlung, Retraktion, Perimeter, Top/Bottom-Schichten
-3. SUPPORTS (falls aktiviert): Support-Typ, Z-Abstand oben, Z-Abstand unten, Interface-Schichten, Support-Dichte, Überhang-Winkel. Beachte: ${surfType==='hidden'?'grösserer Z-Abstand da Fläche nicht sichtbar/funktional':'minimaler Z-Abstand für saubere Oberfläche'}
-4. WARUM DIESES PROFIL: 2-3 Sätze Begründung der wichtigsten Entscheidungen
-5. DISCLAIMER: "Dieses Profil ist ein Startpunkt. Kalibriere anhand deiner ersten Testdrucke."
-Verwende exakte ${slicer}-Bezeichnungen. Keine Emojis.`;
-  const promptEN=`Create a detailed print profile for: Printer: ${printer} | Material: ${material} | Slicer: ${slicer} | Object: ${object} | Quality: ${quality} | Support: ${supLabel}${supType!=='none'?' on '+surfLabel:''}.
-Structure the answer as:
-1. PROFILE HEADER: Printer / Material / Quality as title
-2. CORE VALUES (as clear list with exact numbers): print temp, bed temp, layer height, infill %, infill pattern, speed, cooling, retraction, perimeters, top/bottom layers
-3. SUPPORTS (if enabled): support type, Z-gap top, Z-gap bottom, interface layers, support density, overhang angle. Note: ${surfType==='hidden'?'larger Z-gap since surface is non-visible/non-functional':'minimal Z-gap for clean surface quality'}
-4. WHY THIS PROFILE: 2-3 sentences explaining key decisions
-5. DISCLAIMER: "This profile is a starting point. Calibrate based on your first test prints."
-Use exact ${slicer} terminology. No emojis.`;
-  await send(isEN?promptEN:promptDE,null,null);
+  document.getElementById('chips-wrap').style.display = 'none';
+  var prompt = isEN
+    ? 'Create a detailed print profile for: Printer: ' + printer + ' | Material: ' + material + ' | Slicer: ' + slicer + ' | Object: ' + object + ' | Quality: ' + quality + ' | Support: ' + supLabel + (supType !== 'none' ? ' on ' + surfLabel : '') + '. Structure: 1) Profile header as title 2) Core values with exact numbers: print temp, bed temp, layer height, infill %, pattern, speed, cooling, retraction, perimeters, top/bottom layers 3) Supports if enabled: type, Z-gap top/bottom, interface layers, density, overhang angle. Note: ' + (surfType === 'hidden' ? 'larger Z-gap for non-visible surface' : 'minimal Z-gap for clean surface') + ' 4) Why this profile: 2-3 sentences 5) Disclaimer: This profile is a starting point. Calibrate based on test prints. Use exact ' + slicer + ' terminology. No emojis.'
+    : 'Erstelle ein detailliertes Druckprofil f\u00fcr: Drucker: ' + printer + ' | Material: ' + material + ' | Slicer: ' + slicer + ' | Objekt: ' + object + ' | Qualit\u00e4t: ' + quality + ' | Support: ' + supLabel + (supType !== 'none' ? ' auf ' + surfLabel : '') + '. Struktur: 1) Profil-Kopf als Titel 2) Kernwerte mit genauen Zahlen: Drucktemp, Betttemp, Schichth\u00f6he, Infill-%, Muster, Geschwindigkeit, K\u00fchlung, Retraktion, Perimeter, Top/Bottom-Schichten 3) Supports falls aktiviert: Typ, Z-Abstand oben/unten, Interface-Schichten, Dichte, \u00dcberhang-Winkel. Beachte: ' + (surfType === 'hidden' ? 'gr\u00f6sserer Z-Abstand da nicht sichtbar' : 'minimaler Z-Abstand f\u00fcr saubere Oberfl\u00e4che') + ' 4) Warum dieses Profil: 2-3 S\u00e4tze 5) Disclaimer: Dieses Profil ist ein Startpunkt. Kalibriere anhand deiner Testdrucke. Verwende exakte ' + slicer + '-Bezeichnungen. Keine Emojis.';
+  send(prompt, null, null);
 }
 
-function doSend(){
-  const inp=document.getElementById('inp');
-  const text=inp.value.trim();
-  if((!text&&!pendingImageB64)||busy)return;
-  inp.value='';inp.style.height='auto';
-  document.getElementById('chips-wrap').style.display='none';
-  const img=pendingImageB64, imgType=pendingImageType;
-  removeImage();
-  send(text,img,imgType);
-}
-
-async function send(text,imgB64,imgType){
-  if(busy)return;
-  if(imgB64){
-    const userContent=[];
-    if(text)userContent.push({type:'text',text});
-    userContent.push({type:'image',source:{type:'base64',media_type:imgType,data:imgB64}});
-    addMsgWithImg('user',text,imgB64,imgType);
-    history.push({role:'user',content:userContent});
-  } else {
-    addMsg('user',text);
-    history.push({role:'user',content:text});
-  }
-  busy=true;
-  document.getElementById('send-btn').disabled=true;
-  showTyping();
-  try{
-    const res=await fetch('/api/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({messages:history,lang})
-    });
-    const data=await res.json();
-    const reply=data.reply||(data.error?data.error:'Error.');
-    removeTyping();addMsg('bot',reply);
-    history.push({role:'assistant',content:reply});
-  }catch{
-    removeTyping();addMsg('bot',S[lang].error);
-  }
-  busy=false;
-  document.getElementById('send-btn').disabled=false;
-}
-
-function exportPDF(){
-  if(history.length===0) return;
-  const isEN=lang==='en';
-  const now=new Date();
-  const dateStr=now.toLocaleDateString('de-CH')+' · '+now.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
-  const msgs=history.map(m=>{
-    const isUser=m.role==='user';
-    const text=typeof m.content==='string'?m.content:m.content.filter(c=>c.type==='text').map(c=>c.text).join(' ');
-    const label=isUser?(isEN?'You':'Du'):'3dworkbench Assistant';
-    const bg=isUser?'#f7f7f7':'#f0f0f0';
-    const border=isUser?'#ddd':'#222';
-    return '<div style="margin-bottom:14px;"><div style="font-family:IBM Plex Mono,monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:'+(isUser?'#999':'#333')+';margin-bottom:4px;">'+label+'</div><div style="font-size:12px;line-height:1.7;color:#333;padding:10px 12px;background:'+bg+';border-left:3px solid '+border+';">'+text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')+'</div></div>';
+function exportPDF() {
+  if (history.length === 0) return;
+  var isEN = lang === 'en';
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('de-CH') + ' \u00b7 ' + now.toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'});
+  var msgs = history.map(function(m) {
+    var isUser = m.role === 'user';
+    var text = typeof m.content === 'string' ? m.content : m.content.filter(function(c){return c.type==='text';}).map(function(c){return c.text;}).join(' ');
+    var label = isUser ? (isEN ? 'You' : 'Du') : '3dworkbench Assistant';
+    var bg = isUser ? '#f7f7f7' : '#f0f0f0';
+    var borderCol = isUser ? '#ddd' : '#222';
+    return '<div style="margin-bottom:14px"><div style="font-family:monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:' + (isUser?'#999':'#333') + ';margin-bottom:4px">' + label + '</div><div style="font-size:12px;line-height:1.7;color:#333;padding:10px 12px;background:' + bg + ';border-left:3px solid ' + borderCol + '">' + text.replace(/\n/g,'<br>') + '</div></div>';
   }).join('');
-  const parts=['<!DOCTYPE html><html><head><meta charset="UTF-8"><title>3dworkbench Chat Export</title>',
-    '<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">',
-    '<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:IBM Plex Sans,sans-serif;background:#fff;color:#111;}',
-    '#header{background:#0a0a0a;padding:20px 28px;display:flex;align-items:center;gap:14px;}',
-    '#logo{width:30px;height:30px;border:1px solid #333;background:#111;display:flex;align-items:center;justify-content:center;flex-shrink:0;}',
-    '#bname{font-family:IBM Plex Mono,monospace;font-size:13px;font-weight:700;color:#fff;letter-spacing:0.05em;}',
-    '#bsub{font-family:IBM Plex Mono,monospace;font-size:9px;color:#555;letter-spacing:0.08em;text-transform:uppercase;margin-top:2px;}',
-    '#bdate{font-family:IBM Plex Mono,monospace;font-size:9px;color:#444;margin-left:auto;}',
-    '#body{padding:24px 28px;}#title{font-family:IBM Plex Mono,monospace;font-size:10px;color:#999;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid #eee;}',
-    '#footer{padding:14px 28px;border-top:1px solid #eee;display:flex;justify-content:space-between;margin-top:24px;}',
-    '#fbrand{font-family:IBM Plex Mono,monospace;font-size:8px;color:#bbb;letter-spacing:0.06em;text-transform:uppercase;}',
-    '#furl{font-family:IBM Plex Mono,monospace;font-size:8px;color:#bbb;}',
-    '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}',
-    '</style></head><body>',
-    '<div id="header"><div id="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 12 2 21 6"></polyline><polyline points="3 6 3 18 12 22 21 18 21 6"></polyline><line x1="12" y1="2" x2="12" y2="22"></line><line x1="3" y1="12" x2="21" y2="12"></line></svg></div>',
-    '<div><div id="bname">3dworkbench</div><div id="bsub">Assistant &middot; FDM</div></div><div id="bdate">'+dateStr+'</div></div>',
-    '<div id="body"><div id="title">Chat Export &mdash; support.3dworkbench.ch</div>'+msgs+'</div>',
-    '<div id="footer"><div id="fbrand">3dworkbench &middot; '+(isEN?'AI-assisted &middot; All information without guarantee':'KI-gest&uuml;tzt &middot; Alle Angaben ohne Gew&auml;hr')+'</div><div id="furl">support.3dworkbench.ch</div></div>',
-    '</' + 'body></' + 'html>'];
-  const html=parts.join('');
-  const win=window.open('','_blank');
-  win.document.write(html);
+  var doc = '<html><head><meta charset="UTF-8"><title>3dworkbench Chat Export</title>';
+  doc += '<style>body{font-family:sans-serif;color:#111;margin:0}';
+  doc += '#hd{background:#0a0a0a;padding:20px 28px;display:flex;align-items:center;gap:14px}';
+  doc += '#bn{font-family:monospace;font-size:13px;font-weight:700;color:#fff;letter-spacing:0.05em}';
+  doc += '#bs{font-family:monospace;font-size:9px;color:#555;text-transform:uppercase;margin-top:2px}';
+  doc += '#bd{font-family:monospace;font-size:9px;color:#444;margin-left:auto}';
+  doc += '#body{padding:24px 28px}';
+  doc += '#title{font-family:monospace;font-size:10px;color:#999;text-transform:uppercase;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid #eee}';
+  doc += '#ft{padding:14px 28px;border-top:1px solid #eee;display:flex;justify-content:space-between;margin-top:24px}';
+  doc += '#fb,#fu{font-family:monospace;font-size:8px;color:#bbb;text-transform:uppercase}';
+  doc += '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
+  doc += '</style></head><body>';
+  doc += '<div id="hd"><div><div id="bn">3dworkbench</div><div id="bs">Assistant &middot; FDM</div></div><div id="bd">' + dateStr + '</div></div>';
+  doc += '<div id="body"><div id="title">Chat Export &mdash; support.3dworkbench.ch</div>' + msgs + '</div>';
+  doc += '<div id="ft"><div id="fb">3dworkbench &middot; ' + (isEN ? 'AI-assisted &middot; All information without guarantee' : 'KI-gest&uuml;tzt &middot; Alle Angaben ohne Gew&auml;hr') + '</div><div id="fu">support.3dworkbench.ch</div></div>';
+  doc += '</body></html>';
+  var win = window.open('', '_blank');
+  win.document.write(doc);
   win.document.close();
   win.focus();
-  setTimeout(()=>{win.print();},600);
+  setTimeout(function(){ win.print(); }, 600);
 }
 
-function doSend(){
-  const inp=document.getElementById('inp');
-  const text=inp.value.trim();
-  if((!text&&!pendingImageB64)||busy)return;
-  inp.value='';inp.style.height='auto';
-  document.getElementById('chips-wrap').style.display='none';
-  const img=pendingImageB64, imgType=pendingImageType;
+function doSend() {
+  var inp = document.getElementById('inp');
+  var text = inp.value.trim();
+  if ((!text && !pendingImageB64) || busy) return;
+  inp.value = '';
+  document.getElementById('chips-wrap').style.display = 'none';
+  var img = pendingImageB64;
+  var imgType = pendingImageType;
   removeImage();
-  send(text,img,imgType);
+  send(text, img, imgType);
 }
 
-async function send(text,imgB64,imgType){
-  if(busy)return;
-  if(imgB64){
-    const userContent=[];
-    if(text)userContent.push({type:'text',text});
-    userContent.push({type:'image',source:{type:'base64',media_type:imgType,data:imgB64}});
-    addMsgWithImg('user',text,imgB64,imgType);
-    history.push({role:'user',content:userContent});
+function send(text, imgB64, imgType) {
+  if (busy) return;
+  if (imgB64) {
+    var userContent = [];
+    if (text) userContent.push({type:'text', text:text});
+    userContent.push({type:'image', source:{type:'base64', media_type:imgType, data:imgB64}});
+    addMsgWithImg('user', text, imgB64, imgType);
+    history.push({role:'user', content:userContent});
   } else {
-    addMsg('user',text);
-    history.push({role:'user',content:text});
+    addMsg('user', text);
+    history.push({role:'user', content:text});
   }
-  busy=true;
-  document.getElementById('send-btn').disabled=true;
+  busy = true;
+  document.getElementById('send-btn').disabled = true;
   showTyping();
-  try{
-    const res=await fetch('/api/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({messages:history,lang})
-    });
-    const data=await res.json();
-    const reply=data.reply||(data.error?data.error:'Error.');
-    removeTyping();addMsg('bot',reply);
-    history.push({role:'assistant',content:reply});
-  }catch{
-    removeTyping();addMsg('bot',S[lang].error);
-  }
-  busy=false;
-  document.getElementById('send-btn').disabled=false;
-}
-
-function exportPDF(){
-  if(history.length===0) return;
-  const isEN=lang==='en';
-  const now=new Date();
-  const dateStr=now.toLocaleDateString('de-CH')+' · '+now.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
-
-  const msgs=history.map(m=>{
-    const isUser=m.role==='user';
-    const text=typeof m.content==='string'?m.content:m.content.filter(c=>c.type==='text').map(c=>c.text).join(' ');
-    const label=isUser?(isEN?'You':'Du'):'3dworkbench Assistant';
-    const bg=isUser?'#f7f7f7':'#f0f0f0';
-    const border=isUser?'#ddd':'#222';
-    return `<div style="margin-bottom:14px;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${isUser?'#999':'#333'};margin-bottom:4px;">${label}</div>
-      <div style="font-size:12px;line-height:1.7;color:#333;padding:10px 12px;background:${bg};border-left:3px solid ${border};">${text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/
-/g,'<br>')}</div>
-    </div>`;
-  }).join('');
-
-  const html=`<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8"/>
-<title>3dworkbench Chat Export</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet"/>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#111;}
-  #header{background:#0a0a0a;padding:20px 28px;display:flex;align-items:center;gap:14px;}
-  #logo{width:30px;height:30px;border:1px solid #333;background:#111;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  #brand-name{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:#fff;letter-spacing:0.05em;}
-  #brand-sub{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#555;letter-spacing:0.08em;text-transform:uppercase;margin-top:2px;}
-  #date{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#444;margin-left:auto;}
-  #body{padding:24px 28px;}
-  #title{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#999;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid #eee;}
-  #footer{padding:14px 28px;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;margin-top:24px;}
-  #footer-brand{font-family:'IBM Plex Mono',monospace;font-size:8px;color:#bbb;letter-spacing:0.06em;text-transform:uppercase;}
-  #footer-url{font-family:'IBM Plex Mono',monospace;font-size:8px;color:#bbb;}
-  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
-</style>
-</head>
-<body>
-<div id="header">
-  <div id="logo">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="3 6 12 2 21 6"/><polyline points="3 6 3 18 12 22 21 18 21 6"/>
-      <line x1="12" y1="2" x2="12" y2="22"/><line x1="3" y1="12" x2="21" y2="12"/>
-    </svg>
-  </div>
-  <div>
-    <div id="brand-name">3dworkbench</div>
-    <div id="brand-sub">Assistant · FDM</div>
-  </div>
-  <div id="date">${dateStr}</div>
-</div>
-<div id="body">
-  <div id="title">Chat Export — support.3dworkbench.ch</div>
-  ${msgs}
-</div>
-<div id="footer">
-  <div id="footer-brand">3dworkbench · ${isEN?'AI-assisted · All information without guarantee':'KI-gestützt · Alle Angaben ohne Gewähr'}</div>
-  <div id="footer-url">support.3dworkbench.ch</div>
-</div>
-</' + 'body>
-</' + 'html>`;
-
-  const win=window.open('','_blank');
-  win.document.write(html.replace(/<\/script>/g,'<\/script>'));
-  win.document.close();
-  win.focus();
-  setTimeout(()=>{win.print();},600);
+  fetch('/api/chat', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({messages: history, lang: lang})
+  }).then(function(res){ return res.json(); }).then(function(data) {
+    var reply = data.reply || (data.error ? data.error : 'Error.');
+    removeTyping();
+    addMsg('bot', reply);
+    history.push({role:'assistant', content:reply});
+    busy = false;
+    document.getElementById('send-btn').disabled = false;
+  }).catch(function() {
+    removeTyping();
+    addMsg('bot', S[lang].error);
+    busy = false;
+    document.getElementById('send-btn').disabled = false;
+  });
 }
 
 setLang('en');
