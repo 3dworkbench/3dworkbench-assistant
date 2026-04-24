@@ -343,7 +343,7 @@ function addMsg(role, text) {
   row.className = 'row ' + role;
   var av = document.createElement('div');
   av.className = 'avatar';
-  av.textContent = role === 'bot' ? '3DW' : STRINGS[lang].you;
+  av.textContent = role === 'bot' ? '3DWB' : STRINGS[lang].you;
   var bub = document.createElement('div');
   bub.className = 'bubble';
   bub.innerHTML = '<p>' + md(text) + '</p>';
@@ -359,7 +359,7 @@ function addMsgWithImg(role, text, b64, mimeType) {
   row.className = 'row ' + role;
   var av = document.createElement('div');
   av.className = 'avatar';
-  av.textContent = role === 'bot' ? '3DW' : STRINGS[lang].you;
+  av.textContent = role === 'bot' ? '3DWB' : STRINGS[lang].you;
   var bub = document.createElement('div');
   bub.className = 'bubble';
   var inner = text ? '<p>' + md(text) + '</p>' : '';
@@ -378,7 +378,7 @@ function showTyping() {
   row.id = 'typing';
   var av = document.createElement('div');
   av.className = 'avatar';
-  av.textContent = '3DW';
+  av.textContent = '3DWB';
   var bub = document.createElement('div');
   bub.className = 'bubble';
   bub.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
