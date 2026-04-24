@@ -56,12 +56,12 @@
     #img-preview{margin:0 22px 8px;display:none;position:relative;display:none;}
     #img-preview img{max-height:100px;max-width:160px;border:1px solid #444;display:block;}
     #img-remove{position:absolute;top:-8px;right:-8px;width:18px;height:18px;background:var(--white);color:#000;border:none;cursor:pointer;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-    #bar{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end;flex-shrink:0;background:var(--bg);}
+    #bar{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-shrink:0;background:var(--bg);}
     .bar-btn{width:40px;height:40px;background:var(--bg3);border:1px solid #555;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;}
     .bar-btn:hover{background:#1e1e1e;border-color:#888;}
     .bar-btn svg{width:16px;height:16px;}
     #file-input{display:none;}
-    #inp{flex:1;background:var(--bg3);border:1px solid #555;padding:11px 16px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);resize:none;line-height:1.5;max-height:120px;overflow-y:auto;outline:none;transition:border-color 0.12s;}
+    #inp{flex:1;background:var(--bg3);border:1px solid #555;padding:0 16px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);resize:none;line-height:1;height:40px;max-height:40px;overflow-y:auto;outline:none;transition:border-color 0.12s;}
     #inp:focus{border-color:var(--border3);}
     #inp::placeholder{color:#666;}
     #save-btn{width:40px;height:40px;background:var(--bg3);border:1px solid #555;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;}
@@ -473,6 +473,89 @@ function exportPDF(){
   const isEN=lang==='en';
   const now=new Date();
   const dateStr=now.toLocaleDateString('de-CH')+' · '+now.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+  const msgs=history.map(m=>{
+    const isUser=m.role==='user';
+    const text=typeof m.content==='string'?m.content:m.content.filter(c=>c.type==='text').map(c=>c.text).join(' ');
+    const label=isUser?(isEN?'You':'Du'):'3dworkbench Assistant';
+    const bg=isUser?'#f7f7f7':'#f0f0f0';
+    const border=isUser?'#ddd':'#222';
+    return '<div style="margin-bottom:14px;"><div style="font-family:IBM Plex Mono,monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:'+(isUser?'#999':'#333')+';margin-bottom:4px;">'+label+'</div><div style="font-size:12px;line-height:1.7;color:#333;padding:10px 12px;background:'+bg+';border-left:3px solid '+border+';">'+text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')+'</div></div>';
+  }).join('');
+  const parts=['<!DOCTYPE html><html><head><meta charset="UTF-8"><title>3dworkbench Chat Export</title>',
+    '<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">',
+    '<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:IBM Plex Sans,sans-serif;background:#fff;color:#111;}',
+    '#header{background:#0a0a0a;padding:20px 28px;display:flex;align-items:center;gap:14px;}',
+    '#logo{width:30px;height:30px;border:1px solid #333;background:#111;display:flex;align-items:center;justify-content:center;flex-shrink:0;}',
+    '#bname{font-family:IBM Plex Mono,monospace;font-size:13px;font-weight:700;color:#fff;letter-spacing:0.05em;}',
+    '#bsub{font-family:IBM Plex Mono,monospace;font-size:9px;color:#555;letter-spacing:0.08em;text-transform:uppercase;margin-top:2px;}',
+    '#bdate{font-family:IBM Plex Mono,monospace;font-size:9px;color:#444;margin-left:auto;}',
+    '#body{padding:24px 28px;}#title{font-family:IBM Plex Mono,monospace;font-size:10px;color:#999;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid #eee;}',
+    '#footer{padding:14px 28px;border-top:1px solid #eee;display:flex;justify-content:space-between;margin-top:24px;}',
+    '#fbrand{font-family:IBM Plex Mono,monospace;font-size:8px;color:#bbb;letter-spacing:0.06em;text-transform:uppercase;}',
+    '#furl{font-family:IBM Plex Mono,monospace;font-size:8px;color:#bbb;}',
+    '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}',
+    '</style></head><body>',
+    '<div id="header"><div id="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 12 2 21 6"></polyline><polyline points="3 6 3 18 12 22 21 18 21 6"></polyline><line x1="12" y1="2" x2="12" y2="22"></line><line x1="3" y1="12" x2="21" y2="12"></line></svg></div>',
+    '<div><div id="bname">3dworkbench</div><div id="bsub">Assistant &middot; FDM</div></div><div id="bdate">'+dateStr+'</div></div>',
+    '<div id="body"><div id="title">Chat Export &mdash; support.3dworkbench.ch</div>'+msgs+'</div>',
+    '<div id="footer"><div id="fbrand">3dworkbench &middot; '+(isEN?'AI-assisted &middot; All information without guarantee':'KI-gest&uuml;tzt &middot; Alle Angaben ohne Gew&auml;hr')+'</div><div id="furl">support.3dworkbench.ch</div></div>',
+    '</body></html>'];
+  const html=parts.join('');
+  const win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>{win.print();},600);
+}
+
+function doSend(){
+  const inp=document.getElementById('inp');
+  const text=inp.value.trim();
+  if((!text&&!pendingImageB64)||busy)return;
+  inp.value='';inp.style.height='auto';
+  document.getElementById('chips-wrap').style.display='none';
+  const img=pendingImageB64, imgType=pendingImageType;
+  removeImage();
+  send(text,img,imgType);
+}
+
+async function send(text,imgB64,imgType){
+  if(busy)return;
+  if(imgB64){
+    const userContent=[];
+    if(text)userContent.push({type:'text',text});
+    userContent.push({type:'image',source:{type:'base64',media_type:imgType,data:imgB64}});
+    addMsgWithImg('user',text,imgB64,imgType);
+    history.push({role:'user',content:userContent});
+  } else {
+    addMsg('user',text);
+    history.push({role:'user',content:text});
+  }
+  busy=true;
+  document.getElementById('send-btn').disabled=true;
+  showTyping();
+  try{
+    const res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:history,lang})
+    });
+    const data=await res.json();
+    const reply=data.reply||(data.error?data.error:'Error.');
+    removeTyping();addMsg('bot',reply);
+    history.push({role:'assistant',content:reply});
+  }catch{
+    removeTyping();addMsg('bot',S[lang].error);
+  }
+  busy=false;
+  document.getElementById('send-btn').disabled=false;
+}
+
+function exportPDF(){
+  if(history.length===0) return;
+  const isEN=lang==='en';
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('de-CH')+' · '+now.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
 
   const msgs=history.map(m=>{
     const isUser=m.role==='user';
@@ -535,7 +618,7 @@ function exportPDF(){
 </html>`;
 
   const win=window.open('','_blank');
-  win.document.write(html);
+  win.document.write(html.replace(/<\/script>/g,'<\/script>'));
   win.document.close();
   win.focus();
   setTimeout(()=>{win.print();},600);
