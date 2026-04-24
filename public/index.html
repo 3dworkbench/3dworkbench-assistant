@@ -64,6 +64,9 @@
     #inp{flex:1;background:var(--bg3);border:1px solid #555;padding:11px 16px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;color:var(--text);resize:none;line-height:1.5;max-height:120px;overflow-y:auto;outline:none;transition:border-color 0.12s;}
     #inp:focus{border-color:var(--border3);}
     #inp::placeholder{color:#666;}
+    #save-btn{width:40px;height:40px;background:var(--bg3);border:1px solid #555;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.12s;}
+    #save-btn:hover{background:#1e1e1e;border-color:#888;}
+    #save-btn svg{width:16px;height:16px;}
     #send-btn{width:40px;height:40px;background:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.15s,transform 0.1s;}
     #send-btn:hover{opacity:0.8;}#send-btn:active{transform:scale(0.94);}#send-btn:disabled{opacity:0.15;cursor:default;}
     #send-btn svg{width:16px;height:16px;}
@@ -143,6 +146,11 @@
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();doSend()}"
       oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"
     ></textarea>
+    <button id="save-btn" onclick="exportPDF()" title="Save as PDF">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    </button>
     <button id="send-btn" onclick="doSend()">
       <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -458,6 +466,79 @@ async function send(text,imgB64,imgType){
   }
   busy=false;
   document.getElementById('send-btn').disabled=false;
+}
+
+function exportPDF(){
+  if(history.length===0) return;
+  const isEN=lang==='en';
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('de-CH')+' · '+now.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+
+  const msgs=history.map(m=>{
+    const isUser=m.role==='user';
+    const text=typeof m.content==='string'?m.content:m.content.filter(c=>c.type==='text').map(c=>c.text).join(' ');
+    const label=isUser?(isEN?'You':'Du'):'3dworkbench Assistant';
+    const bg=isUser?'#f7f7f7':'#f0f0f0';
+    const border=isUser?'#ddd':'#222';
+    return `<div style="margin-bottom:14px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${isUser?'#999':'#333'};margin-bottom:4px;">${label}</div>
+      <div style="font-size:12px;line-height:1.7;color:#333;padding:10px 12px;background:${bg};border-left:3px solid ${border};">${text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/
+/g,'<br>')}</div>
+    </div>`;
+  }).join('');
+
+  const html=`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>3dworkbench Chat Export</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'IBM Plex Sans',sans-serif;background:#fff;color:#111;}
+  #header{background:#0a0a0a;padding:20px 28px;display:flex;align-items:center;gap:14px;}
+  #logo{width:30px;height:30px;border:1px solid #333;background:#111;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  #brand-name{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:#fff;letter-spacing:0.05em;}
+  #brand-sub{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#555;letter-spacing:0.08em;text-transform:uppercase;margin-top:2px;}
+  #date{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#444;margin-left:auto;}
+  #body{padding:24px 28px;}
+  #title{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#999;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid #eee;}
+  #footer{padding:14px 28px;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;margin-top:24px;}
+  #footer-brand{font-family:'IBM Plex Mono',monospace;font-size:8px;color:#bbb;letter-spacing:0.06em;text-transform:uppercase;}
+  #footer-url{font-family:'IBM Plex Mono',monospace;font-size:8px;color:#bbb;}
+  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+</style>
+</head>
+<body>
+<div id="header">
+  <div id="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="3 6 12 2 21 6"/><polyline points="3 6 3 18 12 22 21 18 21 6"/>
+      <line x1="12" y1="2" x2="12" y2="22"/><line x1="3" y1="12" x2="21" y2="12"/>
+    </svg>
+  </div>
+  <div>
+    <div id="brand-name">3dworkbench</div>
+    <div id="brand-sub">Assistant · FDM</div>
+  </div>
+  <div id="date">${dateStr}</div>
+</div>
+<div id="body">
+  <div id="title">Chat Export — support.3dworkbench.ch</div>
+  ${msgs}
+</div>
+<div id="footer">
+  <div id="footer-brand">3dworkbench · ${isEN?'AI-assisted · All information without guarantee':'KI-gestützt · Alle Angaben ohne Gewähr'}</div>
+  <div id="footer-url">support.3dworkbench.ch</div>
+</div>
+</body>
+</html>`;
+
+  const win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>{win.print();},600);
 }
 
 setLang('en');
