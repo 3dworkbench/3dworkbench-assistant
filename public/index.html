@@ -88,6 +88,20 @@
     #modal-cancel:hover{border-color:#555;color:#aaa;}
     #surface-disclaimer{display:none;background:#080808;border:1px solid #1e1e1e;border-left:2px solid #2a2a2a;padding:9px 12px;margin-top:8px;font-size:11px;color:#555;line-height:1.6;}
     @media(max-width:480px){#wrap{max-height:100dvh;border:none;}}
+    @media print{
+      body{background:#fff;display:block;padding:0;}
+      #wrap{border:none;max-height:none;height:auto;}
+      #header{background:#0a0a0a !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      #status-bar,#chips-wrap,#bar,#foot,#modal-overlay{display:none !important;}
+      #messages{overflow:visible;padding:20px 28px;}
+      .row.bot .bubble{background:#f0f0f0 !important;color:#111 !important;border:1px solid #ddd !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .row.user .bubble{background:#e0e0e0 !important;color:#000 !important;border:1px solid #ccc !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      .avatar{border:1px solid #ccc !important;background:#eee !important;color:#333 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+      #print-header{display:flex !important;}
+    }
+    #print-header{display:none;justify-content:space-between;align-items:center;padding:12px 28px;background:#0a0a0a;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:10px;border-bottom:1px solid #222;}
+    #print-header-brand{font-size:13px;font-weight:700;letter-spacing:0.05em;}
+    #print-header-url{color:#555;}
   </style>
 </head>
 <body>
@@ -113,6 +127,7 @@
     <div id="stext">System online</div>
     <a id="donate-link" href="https://paypal.me/AzraRibic" target="_blank" rel="noopener">Donate via PayPal</a>
   </div>
+  <div id="print-header"><div id="print-header-brand">3dworkbench Assistant · FDM</div><div id="print-header-url">support.3dworkbench.ch</div></div>
   <div id="messages"></div>
   <div id="chips-wrap">
     <div id="chips-label"></div>
@@ -449,38 +464,7 @@ function generateProfile() {
 
 function exportPDF() {
   if (chatHistory.length === 0) return;
-  var isEN = lang === 'en';
-  var now = new Date();
-  var dateStr = now.toLocaleDateString('de-CH') + ' \u00b7 ' + now.toLocaleTimeString('de-CH', {hour:'2-digit', minute:'2-digit'});
-  var msgs = history.map(function(m) {
-    var isUser = m.role === 'user';
-    var text = typeof m.content === 'string' ? m.content : m.content.filter(function(c){return c.type==='text';}).map(function(c){return c.text;}).join(' ');
-    var label = isUser ? (isEN ? 'You' : 'Du') : '3dworkbench Assistant';
-    var bg = isUser ? '#f7f7f7' : '#f0f0f0';
-    var borderCol = isUser ? '#ddd' : '#222';
-    return '<div style="margin-bottom:14px"><div style="font-family:monospace;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:' + (isUser?'#999':'#333') + ';margin-bottom:4px">' + label + '</div><div style="font-size:12px;line-height:1.7;color:#333;padding:10px 12px;background:' + bg + ';border-left:3px solid ' + borderCol + '">' + text.replace(/\n/g,'<br>') + '</div></div>';
-  }).join('');
-  var doc = '<html><head><meta charset="UTF-8"><title>3dworkbench Chat Export</title>';
-  doc += '<style>body{font-family:sans-serif;color:#111;margin:0}';
-  doc += '#hd{background:#0a0a0a;padding:20px 28px;display:flex;align-items:center;gap:14px}';
-  doc += '#bn{font-family:monospace;font-size:13px;font-weight:700;color:#fff;letter-spacing:0.05em}';
-  doc += '#bs{font-family:monospace;font-size:9px;color:#555;text-transform:uppercase;margin-top:2px}';
-  doc += '#bd{font-family:monospace;font-size:9px;color:#444;margin-left:auto}';
-  doc += '#body{padding:24px 28px}';
-  doc += '#title{font-family:monospace;font-size:10px;color:#999;text-transform:uppercase;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid #eee}';
-  doc += '#ft{padding:14px 28px;border-top:1px solid #eee;display:flex;justify-content:space-between;margin-top:24px}';
-  doc += '#fb,#fu{font-family:monospace;font-size:8px;color:#bbb;text-transform:uppercase}';
-  doc += '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
-  doc += '</style></head><body>';
-  doc += '<div id="hd"><div><div id="bn">3dworkbench</div><div id="bs">Assistant &middot; FDM</div></div><div id="bd">' + dateStr + '</div></div>';
-  doc += '<div id="body"><div id="title">Chat Export &mdash; support.3dworkbench.ch</div>' + msgs + '</div>';
-  doc += '<div id="ft"><div id="fb">3dworkbench &middot; ' + (isEN ? 'AI-assisted &middot; All information without guarantee' : 'KI-gest&uuml;tzt &middot; Alle Angaben ohne Gew&auml;hr') + '</div><div id="fu">support.3dworkbench.ch</div></div>';
-  doc += '<' + '/body><' + '/html>';
-  var win = window.open('', '_blank');
-  win.document.write(doc);
-  win.document.close();
-  win.focus();
-  setTimeout(function(){ win.print(); }, 600);
+  window.print();
 }
 
 function doSend() {
