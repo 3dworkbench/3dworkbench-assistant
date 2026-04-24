@@ -475,7 +475,7 @@ function exportPDF() {
   doc += '<div id="hd"><div><div id="bn">3dworkbench</div><div id="bs">Assistant &middot; FDM</div></div><div id="bd">' + dateStr + '</div></div>';
   doc += '<div id="body"><div id="title">Chat Export &mdash; support.3dworkbench.ch</div>' + msgs + '</div>';
   doc += '<div id="ft"><div id="fb">3dworkbench &middot; ' + (isEN ? 'AI-assisted &middot; All information without guarantee' : 'KI-gest&uuml;tzt &middot; Alle Angaben ohne Gew&auml;hr') + '</div><div id="fu">support.3dworkbench.ch</div></div>';
-  doc += '</body></html>';
+  doc += '<' + '/body><' + '/html>';
   var win = window.open('', '_blank');
   win.document.write(doc);
   win.document.close();
